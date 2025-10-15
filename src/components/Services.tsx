@@ -1,0 +1,120 @@
+import { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import { getServices } from '@/lib/dataStore.js';
+import { useTenant } from '@/hooks/useTenant.js';
+import haircutImage from '@/assets/service-haircut.jpg';
+import beardImage from '@/assets/service-beard.jpg';
+import comboImage from '@/assets/service-combo.jpg';
+
+interface ServicesProps {
+  onBookingClick: (serviceId: string) => void;
+}
+
+const Services = ({ onBookingClick }: ServicesProps) => {
+  const { data: tenant } = useTenant()
+  const [flipped, setFlipped] = useState<Record<string, boolean>>({});
+  const [services, setServices] = useState<Array<any>>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadServices = async () => {
+      if (tenant?.barbershop?.id) {
+        try {
+          setLoading(true);
+          const cfg = await getServices(tenant.barbershop.id);
+          // normalize shape
+          const mapped = cfg.map((s) => ({
+            id: s.id,
+            title: s.name,
+            description: s.description || 'Serviço premium BarberTime.',
+            price: Number(s.price || 0),
+            image: s.image || (s.name.toLowerCase().includes('corte') ? haircutImage : s.name.toLowerCase().includes('barba') ? beardImage : comboImage),
+            icon: s.icon || '💈',
+          }));
+          setServices(mapped);
+        } catch (error) {
+          console.error('Erro ao carregar serviços:', error);
+          setServices([]);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadServices();
+  }, [tenant]);
+
+  return (
+    <section id="servicos" className="py-12 sm:py-16 md:py-20 bg-card">
+      <div className="container mx-auto px-4">
+        <div className="text-center mb-12 sm:mb-16 animate-fade-in">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4">
+            Nossos <span className="gradient-text">Serviços</span>
+          </h2>
+          <p className="text-muted-foreground text-base sm:text-lg max-w-2xl mx-auto">
+            Qualidade e estilo em cada atendimento
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-8 max-w-7xl mx-auto">
+          {loading ? (
+            // Skeleton loading
+            Array.from({ length: 4 }).map((_, index) => (
+              <div key={index} className="group bg-background rounded-lg overflow-hidden animate-pulse">
+                <Skeleton className="h-56 sm:h-56 md:h-64 w-full" />
+                <div className="p-4 space-y-2">
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                </div>
+              </div>
+            ))
+          ) : (
+            services.map((service, index) => (
+            <div
+              key={service.id}
+              className="group bg-background rounded-lg overflow-hidden hover-lift cursor-pointer animate-slide-up [transform-style:preserve-3d] relative"
+              style={{ 
+                animationDelay: `${index * 0.1}s`,
+                boxShadow: 'var(--shadow-card)'
+              }}
+              onClick={() => {
+                // first click: flip to show description; second click: open modal with service preselected
+                if (!flipped[service.id]) setFlipped(prev => ({ ...prev, [service.id]: true }));
+                else onBookingClick(service.id);
+              }}
+            >
+              {/* front */}
+              <div className={`relative h-56 sm:h-56 md:h-64 overflow-hidden transition-transform duration-500 [backface-visibility:hidden] ${flipped[service.id] ? 'rotate-y-180' : ''}`}>
+                <img 
+                  src={service.image} 
+                  alt={service.title}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent opacity-60" />
+                <div className="absolute bottom-0 left-0 right-0 p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-2xl">{service.icon}</span>
+                      <h3 className="text-lg sm:text-xl font-bold">{service.title}</h3>
+                    </div>
+                    <span className="badge bg-warning text-black px-3 py-1 rounded-full">R$ {service.price.toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+              {/* back */}
+              <div className={`absolute inset-0 p-5 sm:p-6 bg-background transition-transform duration-500 rotate-y-180 [backface-visibility:hidden] ${flipped[service.id] ? '' : 'rotate-y-0'}`}>
+                <h3 className="text-lg sm:text-xl font-bold mb-2">{service.title}</h3>
+                <p className="text-muted-foreground text-sm sm:text-base mb-4">{service.description}</p>
+                <div className="small text-muted-foreground">Toque novamente para agendar</div>
+              </div>
+            </div>
+            ))
+          )}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default Services;

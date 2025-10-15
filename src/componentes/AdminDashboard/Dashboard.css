@@ -1,0 +1,3 @@
+.stat-card { border-radius: 12px; box-shadow: 0 8px 28px rgba(0,0,0,0.35); }
+.dashboard .card { transition: transform .2s ease, box-shadow .2s ease; }
+.dashboard .card:hover { transform: translateY(-2px); box-shadow: 0 12px 36px rgba(0,0,0,0.45); }
