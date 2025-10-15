@@ -37,8 +37,11 @@ const Header = ({ onBookingClick }: HeaderProps) => {
       }`}
     >
       <nav className="container mx-auto px-4 py-4 flex items-center justify-between">
-        {/* Título */}
-        <div className="flex items-center">
+        {/* Logo e Título */}
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-amber-700 rounded-full flex items-center justify-center shadow-lg">
+            <span className="text-white text-xl font-bold">💈</span>
+          </div>
           <span className="text-2xl font-bold gradient-text">BarberTime</span>
         </div>
 

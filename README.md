@@ -1,73 +1,137 @@
-# Welcome to your Lovable project
+# BarberTime - Sistema de Gestão para Barbearias
 
-## Project info
+## Sobre o Projeto
 
-**URL**: https://lovable.dev/projects/b437bbf4-bae4-4c31-b367-1522034d2211
+**BarberTime** é um sistema completo de gestão para barbearias, desenvolvido com React, TypeScript e Supabase. O sistema oferece:
 
-## How can I edit this code?
+- 🎯 **Sistema de Agendamento** - Clientes podem agendar horários online
+- 👨‍💼 **Painel Administrativo** - Gestão completa da barbearia
+- 🔐 **Sistema de Aprovação** - Controle de acesso rigoroso para administradores
+- 📱 **PWA** - Funciona como aplicativo móvel
+- 🎨 **Design Moderno** - Interface responsiva e elegante
 
-There are several ways of editing your application.
+## Tecnologias Utilizadas
 
-**Use Lovable**
+- **Frontend**: React 18, TypeScript, Vite
+- **UI**: Tailwind CSS, shadcn/ui, Bootstrap
+- **Backend**: Supabase (PostgreSQL, Auth, Real-time)
+- **Autenticação**: Google OAuth, Supabase Auth
+- **PWA**: Service Workers, Manifest
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/b437bbf4-bae4-4c31-b367-1522034d2211) and start prompting.
+## Funcionalidades
 
-Changes made via Lovable will be committed automatically to this repo.
+### Para Clientes
+- Visualização de serviços
+- Agendamento online
+- Galeria de trabalhos
+- Informações de contato
 
-**Use your preferred IDE**
+### Para Administradores
+- Sistema de login com Google OAuth
+- Painel de aprovação de usuários
+- Gestão de agendamentos
+- Controle de serviços
+- Notificações em tempo real
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## Como Executar Localmente
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Pré-requisitos
+- Node.js 18+ 
+- npm ou yarn
+- Conta no Supabase
+- Conta no Google Cloud Console (para OAuth)
 
-Follow these steps:
+### Instalação
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+```bash
+# 1. Clone o repositório
+git clone https://github.com/soarxs/barbearia.git
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# 2. Navegue para o diretório
+cd barbearia
 
-# Step 3: Install the necessary dependencies.
-npm i
+# 3. Instale as dependências
+npm install
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# 4. Configure as variáveis de ambiente
+# Crie um arquivo .env.local com suas credenciais do Supabase
+
+# 5. Execute o script SQL no Supabase
+# Execute o arquivo setup-complete-approval-system.sql no SQL Editor
+
+# 6. Inicie o servidor de desenvolvimento
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### Configuração do Supabase
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+1. Crie um projeto no [Supabase](https://supabase.com)
+2. Execute o script SQL fornecido em `setup-complete-approval-system.sql`
+3. Configure as variáveis de ambiente com suas credenciais
 
-**Use GitHub Codespaces**
+### Configuração do Google OAuth
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+1. Acesse o [Google Cloud Console](https://console.cloud.google.com)
+2. Crie um projeto ou selecione um existente
+3. Ative a API do Google Identity
+4. Configure as credenciais OAuth
+5. Adicione as URLs de redirecionamento no Supabase
 
-## What technologies are used for this project?
+## Deploy
 
-This project is built with:
+### Vercel (Recomendado)
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+```bash
+# 1. Instale o Vercel CLI
+npm i -g vercel
 
-## How can I deploy this project?
+# 2. Faça login
+vercel login
 
-Simply open [Lovable](https://lovable.dev/projects/b437bbf4-bae4-4c31-b367-1522034d2211) and click on Share -> Publish.
+# 3. Deploy
+vercel
 
-## Can I connect a custom domain to my Lovable project?
+# 4. Configure as variáveis de ambiente no painel do Vercel
+```
 
-Yes, you can!
+### Outras Plataformas
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+O projeto pode ser deployado em qualquer plataforma que suporte React:
+- Netlify
+- GitHub Pages
+- Railway
+- Render
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+## Estrutura do Projeto
+
+```
+src/
+├── components/          # Componentes reutilizáveis
+├── componentes/         # Componentes específicos do admin
+├── hooks/              # Custom hooks
+├── lib/                # Configurações e utilitários
+├── pages/              # Páginas da aplicação
+└── assets/             # Imagens e recursos
+```
+
+## Contribuição
+
+1. Fork o projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
+
+## Licença
+
+Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
+
+## Contato
+
+- **Desenvolvedor**: Guilherme
+- **Email**: guilhermesf.beasss@gmail.com
+- **GitHub**: [@soarxs](https://github.com/soarxs)
+
+---
+
+**BarberTime** - Estilo não se corta, se cria! 💈

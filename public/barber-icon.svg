@@ -1,0 +1,17 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Barbearia - Tesoura e navalha -->
+  <g>
+    <!-- Tesoura -->
+    <path d="M8 6L12 10L10 12L6 8L8 6Z" fill="#1a1a1a" stroke="#333" stroke-width="0.5"/>
+    <path d="M24 6L20 10L22 12L26 8L24 6Z" fill="#1a1a1a" stroke="#333" stroke-width="0.5"/>
+    <circle cx="16" cy="9" r="1.5" fill="#1a1a1a"/>
+    
+    <!-- Navalha -->
+    <path d="M14 16L18 20L16 22L12 18L14 16Z" fill="#666" stroke="#333" stroke-width="0.5"/>
+    <rect x="15" y="14" width="2" height="8" fill="#1a1a1a"/>
+    
+    <!-- Cabelo -->
+    <path d="M6 20C6 20 8 18 10 20C12 22 14 20 16 22C18 20 20 22 22 20C24 18 26 20 26 20" stroke="#1a1a1a" stroke-width="2" fill="none"/>
+    <path d="M6 24C6 24 8 22 10 24C12 26 14 24 16 26C18 24 20 26 22 24C24 22 26 24 26 24" stroke="#1a1a1a" stroke-width="2" fill="none"/>
+  </g>
+</svg>
