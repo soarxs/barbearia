@@ -103,6 +103,7 @@ function Dashboard({ onGo }) {
               <div className="fw-semibold mb-3">Atalhos</div>
               <div className="d-flex flex-wrap gap-2">
                 <button className="btn btn-gold" onClick={() => onGo('agenda')}>Ir para Agenda</button>
+                <button className="btn btn-outline-gold" onClick={() => onGo('aprovar')}>🔔 Painel de Aprovações</button>
                 <button className="btn btn-outline-gold" onClick={() => onGo('servicos')}>Editar Serviços</button>
                 <button className="btn btn-outline-gold" onClick={() => alert('Relatórios em breve')}>Relatórios</button>
               </div>

@@ -109,6 +109,47 @@ function Notifications() {
     }
   };
 
+  const approveUser = async (notificationId, userEmail) => {
+    try {
+      const { error } = await supabase.rpc('approve_user_from_notification', {
+        p_notification_id: notificationId,
+        p_user_email: userEmail,
+        p_user_name: userEmail.split('@')[0], // Nome baseado no email
+        p_user_role: 'admin'
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      fetchNotifications();
+      toast.success(`Usuário ${userEmail} aprovado com sucesso!`);
+    } catch (error) {
+      console.error('Erro ao aprovar usuário:', error);
+      toast.error('Erro ao aprovar usuário');
+    }
+  };
+
+  const rejectUser = async (notificationId, userEmail) => {
+    try {
+      const { error } = await supabase.rpc('reject_user_from_notification', {
+        p_notification_id: notificationId,
+        p_user_email: userEmail,
+        p_reason: 'Acesso negado pelo administrador'
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      fetchNotifications();
+      toast.success(`Usuário ${userEmail} rejeitado`);
+    } catch (error) {
+      console.error('Erro ao rejeitar usuário:', error);
+      toast.error('Erro ao rejeitar usuário');
+    }
+  };
+
   const getNotificationIcon = (type) => {
     switch (type) {
       case 'unauthorized_access':
@@ -206,6 +247,26 @@ function Notifications() {
                           </div>
                         </div>
                         <div className="btn-group-vertical" role="group">
+                          {/* Botões de Aprovar/Rejeitar para solicitações de acesso */}
+                          {notification.type === 'new_user_request' && !notification.is_read && (
+                            <>
+                              <button
+                                className="btn btn-success btn-sm mb-1"
+                                onClick={() => approveUser(notification.id, notification.email)}
+                                title="Aprovar usuário"
+                              >
+                                ✅ Aprovar
+                              </button>
+                              <button
+                                className="btn btn-danger btn-sm mb-1"
+                                onClick={() => rejectUser(notification.id, notification.email)}
+                                title="Rejeitar usuário"
+                              >
+                                ❌ Rejeitar
+                              </button>
+                            </>
+                          )}
+                          
                           {!notification.is_read && (
                             <button
                               className="btn btn-outline-success btn-sm mb-1"
@@ -237,10 +298,12 @@ function Notifications() {
                 <span role="img" aria-label="info">ℹ️</span> Como funciona:
               </h6>
               <ul className="mb-0">
-                <li>Notificações são criadas automaticamente quando alguém tenta acessar sem autorização</li>
-                <li>Você recebe detalhes completos: email, IP, data/hora</li>
-                <li>Pode marcar como lida ou excluir notificações</li>
-                <li>Notificações em tempo real via WebSocket</li>
+                <li><strong>Automático:</strong> Notificações são criadas quando alguém tenta fazer login</li>
+                <li><strong>Detalhes completos:</strong> Email, IP, data/hora, motivo do bloqueio</li>
+                <li><strong>Aprovação rápida:</strong> Clique em "✅ Aprovar" para liberar acesso</li>
+                <li><strong>Rejeição:</strong> Clique em "❌ Rejeitar" para negar acesso</li>
+                <li><strong>Tempo real:</strong> Notificações aparecem instantaneamente</li>
+                <li><strong>Workflow:</strong> Peça para o usuário tentar login → Você recebe notificação → Aprove/Rejeite</li>
               </ul>
             </div>
           </div>

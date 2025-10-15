@@ -67,16 +67,21 @@ function Login() {
 
   const handleGoogleLogin = async () => {
     try {
+      setIsLoading(true);
+      setError('');
       const result = await signInWithGoogle();
+      
       if (result.success) {
         // O redirecionamento será feito automaticamente pelo Supabase
       }
     } catch (error) {
       console.error('Erro no login com Google:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // Se deve mostrar verificação de email
+
   if (showEmailVerification) {
     return (
       <EmailVerification 

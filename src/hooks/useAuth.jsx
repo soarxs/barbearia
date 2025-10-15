@@ -135,25 +135,26 @@ export const AuthProvider = ({ children }) => {
     };
   }, []);
 
-  // Função para logar tentativa de acesso
-  const logAccessAttempt = async (email, attemptType, status, reason = null) => {
-    try {
-      const { error } = await supabase.rpc('log_access_attempt', {
-        p_email: email,
-        p_ip_address: null, // Será obtido pelo servidor
-        p_user_agent: navigator.userAgent,
-        p_attempt_type: attemptType,
-        p_status: status,
-        p_reason: reason
-      });
+      // Função para logar tentativa de acesso
+      const logAccessAttempt = async (email, attemptType, status, reason = null, userName = null) => {
+        try {
+          const { error } = await supabase.rpc('log_access_attempt', {
+            p_email: email,
+            p_ip_address: null, // Será obtido pelo servidor
+            p_user_agent: navigator.userAgent,
+            p_attempt_type: attemptType,
+            p_status: status,
+            p_reason: reason,
+            p_user_name: userName
+          });
 
-      if (error) {
-        console.error('Erro ao logar tentativa de acesso:', error);
-      }
-    } catch (error) {
-      console.error('Erro ao logar tentativa de acesso:', error);
-    }
-  };
+          if (error) {
+            console.error('Erro ao logar tentativa de acesso:', error);
+          }
+        } catch (error) {
+          console.error('Erro ao logar tentativa de acesso:', error);
+        }
+      };
 
   // Função de login
   const signIn = async (email, password, rememberMe = false) => {
@@ -188,12 +189,12 @@ export const AuthProvider = ({ children }) => {
         // Verificar se o usuário está aprovado
         const isApproved = await isUserApproved(data.user.email);
         if (!isApproved) {
-          await logAccessAttempt(email, 'email_password', 'unauthorized', 'Usuário não aprovado');
+          await logAccessAttempt(email, 'email_password', 'unauthorized', 'Usuário não aprovado', data.user.user_metadata?.full_name || email);
           throw new Error('USER_NOT_APPROVED');
         }
 
         // Logar tentativa bem-sucedida
-        await logAccessAttempt(email, 'email_password', 'success');
+        await logAccessAttempt(email, 'email_password', 'success', null, data.user.user_metadata?.full_name || email);
 
         // Salvar dados de autenticação se "lembrar de mim" estiver marcado
         if (rememberMe) {
@@ -289,19 +290,25 @@ export const AuthProvider = ({ children }) => {
         const isApproved = await isUserApproved(userEmail);
         
         if (!isApproved) {
-          // Logar tentativa não autorizada
-          await logAccessAttempt(userEmail, 'google_oauth', 'unauthorized', 'Usuário não aprovado');
-          
-          // Fazer logout
-          await supabase.auth.signOut();
-          
-          // Mostrar mensagem de erro
-          toast.error('Acesso não autorizado. Entre em contato com o administrador.');
-          return;
-        }
+            // Obter nome do usuário do Google
+            const userName = session.user.user_metadata?.full_name || session.user.user_metadata?.name || userEmail;
 
-        // Logar tentativa bem-sucedida
-        await logAccessAttempt(userEmail, 'google_oauth', 'success');
+            // Logar tentativa não autorizada
+            await logAccessAttempt(userEmail, 'google_oauth', 'unauthorized', 'Usuário não aprovado', userName);
+
+            // Fazer logout
+            await supabase.auth.signOut();
+
+            // Mostrar mensagem de erro
+            toast.error('Acesso não autorizado. Aguarde aprovação do administrador.');
+            return { success: false, error: 'USER_NOT_APPROVED', email: userEmail, userName };
+          }
+
+          // Obter nome do usuário do Google
+          const userName = session.user.user_metadata?.full_name || session.user.user_metadata?.name || userEmail;
+
+          // Logar tentativa bem-sucedida
+          await logAccessAttempt(userEmail, 'google_oauth', 'success', null, userName);
         
         toast.success('Login com Google realizado com sucesso!');
       }
@@ -328,14 +335,64 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Função para verificar se o usuário está aprovado
-  const isUserApproved = async (userEmail) => {
-    // Temporariamente retornando true para o email principal
-    if (userEmail === 'guilhermesf.beasss@gmail.com') {
-      return true;
-    }
-    return false;
-  };
+      // Função para verificar se o usuário está aprovado
+      const isUserApproved = async (userEmail) => {
+        // Email principal sempre aprovado
+        if (userEmail === 'guilhermesf.beasss@gmail.com') {
+          return true;
+        }
+        
+        try {
+          const { data, error } = await supabase
+            .from('approved_users')
+            .select('is_approved')
+            .eq('email', userEmail)
+            .single();
+
+          if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+            console.error('Erro ao verificar aprovação:', error);
+            return false;
+          }
+
+          return data?.is_approved || false;
+        } catch (error) {
+          console.error('Erro ao verificar aprovação:', error);
+          return false;
+        }
+      };
+
+      // Função para verificar status de aprovação (retorna mais informações)
+      const getUserApprovalStatus = async (userEmail) => {
+        // Email principal sempre aprovado
+        if (userEmail === 'guilhermesf.beasss@gmail.com') {
+          return { isApproved: true, status: 'approved' };
+        }
+        
+        try {
+          const { data, error } = await supabase
+            .from('approved_users')
+            .select('is_approved')
+            .eq('email', userEmail)
+            .single();
+
+          if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+            console.error('Erro ao verificar aprovação:', error);
+            return { isApproved: false, status: 'error' };
+          }
+
+          if (data) {
+            return { 
+              isApproved: data.is_approved, 
+              status: data.is_approved ? 'approved' : 'pending' 
+            };
+          } else {
+            return { isApproved: false, status: 'pending' };
+          }
+        } catch (error) {
+          console.error('Erro ao verificar aprovação:', error);
+          return { isApproved: false, status: 'error' };
+        }
+      };
 
   // Função para verificar se o usuário é admin
   const isAdmin = () => {
@@ -356,6 +413,7 @@ export const AuthProvider = ({ children }) => {
     resendConfirmation,
     signInWithGoogle,
     isUserApproved,
+    getUserApprovalStatus,
     logAccessAttempt,
     handleGoogleCallback,
   };
