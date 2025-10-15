@@ -255,7 +255,7 @@ export const AuthProvider = ({ children }) => {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `http://localhost:3000/admin/agenda`,
+          redirectTo: `${import.meta.env.VITE_APP_URL || 'https://barbearia-ruby-one.vercel.app'}/admin/agenda`,
         }
       });
 
