@@ -79,7 +79,7 @@ export const useBooking = (preSelectedServiceId, enabled = true) => {
         status: 'pendente'
       };
 
-      const appointment = await addAppointment(tenant.barbershop.id, booking);
+      const appointment = await addAppointment(booking, tenant.barbershop.id);
       
       const service = services.find(s => s.id === selectedService);
       const barber = barbers.find(b => b.id === selectedBarber);
