@@ -124,7 +124,7 @@ export const useBooking = (preSelectedServiceId) => {
     step, setStep,
     selectedService, selectedBarber, selectedDate, selectedTime,
     name, setName, phone, setPhone,
-    times, setTimes, takenTimes,
+    times, setTimes, takenTimes, setTakenTimes,
     barbers, services,
     errors, touched, isFieldValid, isFieldInvalid,
     
