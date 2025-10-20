@@ -10,7 +10,6 @@ import AdminLayout from './pages/Admin.jsx';
 import PrivateRoute from './pages/PrivateRouteSimple.jsx';
 import Login from './componentes/AuthAdmin/Login.jsx';
 import Dashboard from './componentes/AdminDashboard/Dashboard.jsx';
-import AdminPanel from './components/AdminPanel.tsx';
 import AguardandoAprovacao from './pages/AguardandoAprovacao.jsx';
 import AcessoNegado from './pages/AcessoNegado.jsx';
 import Agenda from './componentes/AgendaAdmin/Agenda.jsx';
@@ -45,7 +44,6 @@ const App = () => (
                   <Route path="agenda" element={<Agenda />} />
                   <Route path="agendamentos" element={<Agendamentos />} />
                   <Route path="dashboard" element={<Dashboard onGo={(s) => window.location.assign(`/admin/${s}`)} />} />
-                  <Route path="painel" element={<AdminPanel />} />
                   <Route path="servicos" element={<ServicosAdmin />} />
                   <Route index element={<Agenda />} />
                 </Route>

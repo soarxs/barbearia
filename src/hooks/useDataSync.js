@@ -1,11 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
-import { getBarbers, getServices, getAllBarberSchedules } from '@/lib/dataStore';
+import { getBarbers, getServices, getAllBarberSchedules, getAppointments, addAppointment, updateAppointment, removeAppointment, generateTimeSlotsForBarber } from '@/lib/dataStore';
 
 export function useDataSync(barbershopId) {
   const [barbers, setBarbers] = useState([]);
   const [services, setServices] = useState([]);
   const [schedules, setSchedules] = useState({});
+  const [appointments, setAppointments] = useState([]);
+  const [barberTimeSlots, setBarberTimeSlots] = useState({});
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -23,14 +26,16 @@ export function useDataSync(barbershopId) {
       setError(null);
       
       // Carregar dados em paralelo
-      const [barbersData, servicesData, schedulesData] = await Promise.all([
+      const [barbersData, servicesData, schedulesData, appointmentsData] = await Promise.all([
         getBarbers(barbershopId),
         getServices(barbershopId),
-        getAllBarberSchedules(barbershopId)
+        getAllBarberSchedules(barbershopId),
+        getAppointments(barbershopId)
       ]);
       
       setBarbers(barbersData || []);
       setServices(servicesData || []);
+      setAppointments(appointmentsData || []);
       
       // Converter schedules para objeto
       const schedulesMap = {};
@@ -38,6 +43,19 @@ export function useDataSync(barbershopId) {
         schedulesMap[schedule.barber_id] = schedule;
       });
       setSchedules(schedulesMap);
+      
+      // Gerar slots de tempo para cada barbeiro
+      const slots = {};
+      for (const barber of barbersData || []) {
+        try {
+          const barberSlots = await generateTimeSlotsForBarber(selectedDate, barbershopId, barber.id);
+          slots[barber.id] = barberSlots;
+        } catch (error) {
+          console.error(`Erro ao carregar horários do barbeiro ${barber.name}:`, error);
+          slots[barber.id] = [];
+        }
+      }
+      setBarberTimeSlots(slots);
       
     } catch (err) {
       console.error('Erro ao carregar dados:', err);
@@ -55,13 +73,76 @@ export function useDataSync(barbershopId) {
     loadData();
   }, [barbershopId]);
 
+  // Filtrar agendamentos do dia
+  const filteredDayList = useMemo(() => {
+    if (!appointments.length) return [];
+    
+    const dateStr = selectedDate.toISOString().split('T')[0];
+    return appointments
+      .filter(apt => apt.date === dateStr)
+      .sort((a, b) => a.time.localeCompare(b.time));
+  }, [appointments, selectedDate]);
+
+  // Funções de manipulação de agendamentos
+  const addAppointmentHandler = async (appointmentData) => {
+    try {
+      const result = await addAppointment(appointmentData, barbershopId);
+      setAppointments(prev => [...prev, result]);
+      return result;
+    } catch (error) {
+      console.error('Erro ao adicionar agendamento:', error);
+      throw error;
+    }
+  };
+
+  const updateAppointmentHandler = async (id, updates) => {
+    try {
+      const result = await updateAppointment(id, updates, barbershopId);
+      setAppointments(prev => prev.map(apt => 
+        apt.id === id ? { ...apt, ...updates } : apt
+      ));
+      return result;
+    } catch (error) {
+      console.error('Erro ao atualizar agendamento:', error);
+      throw error;
+    }
+  };
+
+  const removeAppointmentHandler = async (id) => {
+    try {
+      await removeAppointment(id, barbershopId);
+      setAppointments(prev => prev.filter(apt => apt.id !== id));
+      return true;
+    } catch (error) {
+      console.error('Erro ao remover agendamento:', error);
+      throw error;
+    }
+  };
+
+  const openWhatsApp = (appointment) => {
+    const phone = appointment.client_phone?.replace(/\D/g, '');
+    if (phone) {
+      const message = `Olá ${appointment.client_name}! Seu agendamento para ${appointment.date} às ${appointment.time} está confirmado.`;
+      window.open(`https://wa.me/55${phone}?text=${encodeURIComponent(message)}`, '_blank');
+    }
+  };
+
   return {
     barbers,
     services,
     schedules,
+    appointments,
+    barberTimeSlots,
+    filteredDayList,
+    selectedDate,
+    setSelectedDate,
     loading,
     error,
-    refreshData
+    refreshData,
+    addAppointment: addAppointmentHandler,
+    updateAppointment: updateAppointmentHandler,
+    removeAppointment: removeAppointmentHandler,
+    openWhatsApp
   };
 }
 
