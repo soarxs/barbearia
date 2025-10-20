@@ -7,7 +7,7 @@
 export const VERSION = {
   major: 1,
   minor: 0,
-  patch: 63, // Incrementado a cada commit
+  patch: 64, // Incrementado a cada commit
 };
 
 export const getVersionString = () => {
