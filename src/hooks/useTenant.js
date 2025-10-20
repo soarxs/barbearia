@@ -24,7 +24,7 @@ export const useTenant = () => {
       
       let barbershop = null
       
-      if (host !== 'localhost:8080' && host !== 'localhost:8081' && host !== 'localhost:8082' && host !== 'localhost:8083' && host !== 'localhost:8084' && host !== 'localhost:8085' && host !== 'barbearia-ruby-one.vercel.app' && host !== 'seusistema.com') {
+      if (host !== 'localhost:8080' && host !== 'localhost:8081' && host !== 'localhost:8082' && host !== 'localhost:8083' && host !== 'localhost:8084' && host !== 'localhost:8085' && host !== 'barbearia-guilhermes-projects-02fc08b4.vercel.app' && host !== 'seusistema.com') {
         // Domínio próprio
         const { data, error } = await supabase
           .from('barbershops')
@@ -59,7 +59,7 @@ export const useTenant = () => {
       }
       
       return {
-        type: host !== 'localhost:8080' && host !== 'localhost:8081' && host !== 'localhost:8082' && host !== 'localhost:8083' && host !== 'localhost:8084' && host !== 'localhost:8085' && host !== 'barbearia-ruby-one.vercel.app' && host !== 'seusistema.com' ? 'custom_domain' : 'subroute',
+        type: host !== 'localhost:8080' && host !== 'localhost:8081' && host !== 'localhost:8082' && host !== 'localhost:8083' && host !== 'localhost:8084' && host !== 'localhost:8085' && host !== 'barbearia-guilhermes-projects-02fc08b4.vercel.app' && host !== 'seusistema.com' ? 'custom_domain' : 'subroute',
         barbershop
       }
     },

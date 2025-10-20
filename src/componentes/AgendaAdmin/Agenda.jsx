@@ -127,7 +127,7 @@ export default function Agenda() {
   // Verificar se horário está ocupado
   const isSlotTaken = async (date, time, barberId) => {
     if (!tenant?.barbershop?.id) return false;
-    return await isTimeTaken(tenant.barbershop.id, date, time, barberId);
+    return await isTimeTaken(date, time, barberId, tenant.barbershop.id);
   };
 
   // Adicionar agendamento

@@ -1,18 +1,17 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { addAppointment, formatLocalDateKey, normalizePhoneToE164BR, getBarbers, getServices, generateTimeSlotsFor, generateTimeSlotsForBarber, isTimeTaken, getAllBarberSchedules } from '@/lib/dataStore.js';
-import { useTenant } from '@/hooks/useTenant.js';
-import { useFormValidation, validationRules } from '@/hooks/useFormValidation';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useEffect } from 'react';
+import { generateTimeSlotsFor, generateTimeSlotsForBarber } from '@/lib/dataStore.js';
+import { supabase } from '@/lib/supabase';
+import { useBooking } from '@/hooks/useBooking.js';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ValidatedInput } from '@/components/ui/validated-input';
 import { Label } from '@/components/ui/label';
 import { Calendar } from '@/components/ui/calendar';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { toast } from 'sonner';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import InputMask from 'react-input-mask';
+import { formatLocalDateKey } from '@/lib/dataStore.js';
+import { STEP_TITLES, STEP_DESCRIPTIONS } from '@/lib/constants.js';
 import haircutImage from '@/assets/service-haircut.jpg';
 import beardImage from '@/assets/service-beard.jpg';
 import comboImage from '@/assets/service-combo.jpg';
@@ -24,37 +23,19 @@ interface BookingModalProps {
 }
 
 const BookingModal = ({ open, onOpenChange, preSelectedServiceId }: BookingModalProps) => {
-  const { data: tenant } = useTenant()
-  const navigate = useNavigate()
-  const [step, setStep] = useState(1);
-  const [selectedService, setSelectedService] = useState('');
-  const [selectedBarber, setSelectedBarber] = useState('');
-  const [selectedDate, setSelectedDate] = useState<Date>();
-  const [selectedTime, setSelectedTime] = useState('');
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [times, setTimes] = useState([
-    '09:00', '10:00', '11:00', '14:00', '15:00', '16:00', '17:00', '18:00'
-  ]);
-  const [takenTimes, setTakenTimes] = useState<Set<string>>(new Set());
-  const [barberSchedules, setBarberSchedules] = useState<Record<string, any>>({});
-
-  // Form validation
   const {
-    errors,
-    touched,
-    handleBlur,
-    handleChange,
-    setFieldTouched,
-    isFieldValid,
-    isFieldInvalid,
-    isFormValid,
-  } = useFormValidation({
-    name: validationRules.name,
-    phone: validationRules.phone,
-  });
+    step, setStep,
+    selectedService, selectedBarber, selectedDate, selectedTime,
+    name, setName, phone, setPhone,
+    times, takenTimes,
+    barbers, services,
+    errors, touched, isFieldValid, isFieldInvalid,
+    handleServiceSelect, handleBarberSelect, handleConfirm,
+    handleBlur, handleChange,
+    resetForm
+  } = useBooking(preSelectedServiceId);
 
-  // Se um serviço foi pré-selecionado a partir de um card, pule para a etapa 2; se veio do botão "Agendar Agora", NÃO pular
+  // Reset form when modal opens/closes
   useEffect(() => {
     if (open && preSelectedServiceId) {
       setSelectedService(preSelectedServiceId);
@@ -62,59 +43,10 @@ const BookingModal = ({ open, onOpenChange, preSelectedServiceId }: BookingModal
     } else if (open && !preSelectedServiceId) {
       setStep(1);
       setSelectedService('');
+    } else if (!open) {
+      resetForm();
     }
-  }, [preSelectedServiceId, open]);
-
-  const [services, setServices] = useState([
-    { id: 'haircut', name: 'Corte de Cabelo', image: haircutImage, icon: '💇' },
-    { id: 'beard', name: 'Barba', image: beardImage, icon: '🧔' },
-    { id: 'combo', name: 'Corte + Barba', image: comboImage, icon: '💈' },
-  ]);
-
-  const [barbers, setBarbers] = useState([
-    { id: 'joao', name: 'João Silva' },
-    { id: 'carlos', name: 'Carlos Santos' },
-    { id: 'rafael', name: 'Rafael Oliveira' },
-  ]);
-
-  // Carregar dados do Supabase
-  useEffect(() => {
-    const loadData = async () => {
-      if (tenant?.barbershop?.id) {
-        try {
-          // Carregar barbeiros
-          const barbersData = await getBarbers(tenant.barbershop.id);
-          if (barbersData && barbersData.length > 0) {
-            setBarbers(barbersData.map(b => ({ id: b.id, name: b.name })));
-          }
-          
-          // Carregar serviços
-          const servicesData = await getServices(tenant.barbershop.id);
-          if (servicesData && servicesData.length > 0) {
-            const mappedServices = servicesData.map(s => ({
-              id: s.id,
-              name: s.name,
-              image: s.image || (s.name.toLowerCase().includes('corte') ? haircutImage : s.name.toLowerCase().includes('barba') ? beardImage : comboImage),
-              icon: s.icon || '💈'
-            }));
-            setServices(mappedServices);
-          }
-          
-          // Carregar horários dos barbeiros
-          const schedulesData = await getAllBarberSchedules(tenant.barbershop.id);
-          const schedulesMap: Record<string, any> = {};
-          schedulesData.forEach(schedule => {
-            schedulesMap[schedule.barber_id] = schedule;
-          });
-          setBarberSchedules(schedulesMap);
-        } catch (error) {
-          console.error('Erro ao carregar dados:', error);
-        }
-      }
-    };
-
-    loadData();
-  }, [tenant]);
+  }, [open, preSelectedServiceId]);
 
   // Carregar horários disponíveis quando a data e barbeiro forem selecionados
   useEffect(() => {
@@ -137,23 +69,54 @@ const BookingModal = ({ open, onOpenChange, preSelectedServiceId }: BookingModal
     };
     
     loadTimeSlots();
-  }, [selectedDate, selectedBarber, tenant]);
+  }, [selectedDate, selectedBarber, tenant, schedules]);
 
   // Verificar horários ocupados quando barbeiro e data forem selecionados
   useEffect(() => {
     const checkTakenTimes = async () => {
-      if (selectedDate && selectedBarber && tenant?.barbershop?.id) {
-        const taken = new Set<string>();
-        for (const time of times) {
-          try {
-            const isTaken = await isTimeTaken(tenant.barbershop.id, selectedDate, time, selectedBarber);
-            if (isTaken) {
-              taken.add(time);
-            }
-          } catch (error) {
-            console.error('Erro ao verificar horário:', error);
-          }
+      if (selectedDate && selectedBarber && tenant?.barbershop?.id && times.length > 0) {
+        // Validar se selectedBarber é um ID válido (não é o mesmo que barbershopId)
+        if (selectedBarber === tenant.barbershop.id) {
+          console.warn('selectedBarber is same as barbershopId, skipping taken times check');
+          setTakenTimes(new Set());
+          return;
         }
+        
+        const taken = new Set<string>();
+        
+        // Fazer uma única consulta para buscar todos os agendamentos do dia
+        try {
+          const formattedDate = formatLocalDateKey(selectedDate);
+          if (!formattedDate) {
+            setTakenTimes(new Set());
+            return;
+          }
+          
+          const { data, error } = await supabase
+            .from('appointments')
+            .select('time')
+            .eq('barbershop_id', tenant.barbershop.id)
+            .eq('date', formattedDate)
+            .eq('barber_id', selectedBarber)
+            .eq('status', 'confirmado');
+          
+          if (error) {
+            console.error('Erro ao buscar agendamentos:', error);
+            setTakenTimes(new Set());
+            return;
+          }
+          
+          // Marcar horários ocupados
+          if (data) {
+            data.forEach(appointment => {
+              taken.add(appointment.time);
+            });
+          }
+          
+        } catch (error) {
+          console.error('Erro ao verificar horários ocupados:', error);
+        }
+        
         setTakenTimes(taken);
       } else {
         setTakenTimes(new Set());
@@ -163,93 +126,9 @@ const BookingModal = ({ open, onOpenChange, preSelectedServiceId }: BookingModal
     checkTakenTimes();
   }, [selectedDate, selectedBarber, times, tenant]);
 
-  const handleServiceSelect = (serviceId: string) => {
-    setSelectedService(serviceId);
-    setTimeout(() => setStep(2), 300);
-  };
-
-  const handleBarberSelect = (barberId: string) => {
-    if (!selectedService) {
-      toast.error('Escolha primeiro um serviço.');
-      setStep(1);
-      return;
-    }
-    setSelectedBarber(barberId);
-    setTimeout(() => setStep(3), 300);
-  };
-
-  const handleConfirm = async () => {
-    // Mark fields as touched to show validation errors
-    setFieldTouched('name');
-    setFieldTouched('phone');
-    
-    // Validate form
-    if (!isFormValid({ name, phone })) {
-      toast.error('Por favor, corrija os erros no formulário');
-      return;
-    }
-
-    if (!selectedDate || !selectedTime) {
-      toast.error('Selecione data e horário');
-      return;
-    }
-
-    if (!tenant?.barbershop?.id) {
-      toast.error('Erro: Barbearia não encontrada');
-      return;
-    }
-
-    try {
-      const booking = {
-        date: formatLocalDateKey(selectedDate),
-        time: selectedTime,
-        service_id: selectedService,
-        barber_id: selectedBarber,
-        client_name: name,
-        client_phone: normalizePhoneToE164BR(phone),
-        status: 'pendente'
-      };
-
-      const appointment = await addAppointment(tenant.barbershop.id, booking);
-      
-      // Buscar informações do serviço e barbeiro para a página de agradecimento
-      const service = services.find(s => s.id === selectedService);
-      const barber = barbers.find(b => b.id === selectedBarber);
-      
-      const appointmentData = {
-        id: appointment.id,
-        client_name: name,
-        client_phone: phone,
-        service_name: service?.name || 'Serviço',
-        barber_name: barber?.name || 'Barbeiro',
-        date: formatLocalDateKey(selectedDate),
-        time: selectedTime,
-        status: 'pendente'
-      };
-      
-      toast.success('✅ Agendamento confirmado!', {
-        description: 'Redirecionando para página de confirmação...',
-      });
-
-      // Fechar modal e redirecionar
-      onOpenChange(false);
-      
-      // Reset form
-      setStep(1);
-      setSelectedService('');
-      setSelectedBarber('');
-      setSelectedDate(undefined);
-      setSelectedTime('');
-      setName('');
-      setPhone('');
-      
-      // Redirecionar para página de agradecimento
-      navigate('/obrigado', { state: { appointment: appointmentData } });
-      
-    } catch (error) {
-      console.error('Erro ao criar agendamento:', error);
-      toast.error('Erro ao confirmar agendamento. Tente novamente.');
-    }
+  const handleConfirmAndClose = async () => {
+    await handleConfirm();
+    onOpenChange(false);
   };
 
   const progress = (step / 4) * 100;
@@ -259,11 +138,11 @@ const BookingModal = ({ open, onOpenChange, preSelectedServiceId }: BookingModal
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
         <DialogHeader>
           <DialogTitle className="text-xl sm:text-2xl">
-            {step === 1 && 'Escolha o Serviço'}
-            {step === 2 && 'Escolha o Barbeiro'}
-            {step === 3 && 'Data e Horário'}
-            {step === 4 && 'Suas Informações'}
+            {STEP_TITLES[step]}
           </DialogTitle>
+          <DialogDescription>
+            {STEP_DESCRIPTIONS[step]}
+          </DialogDescription>
           
           {/* Progress Bar */}
           <div className="w-full h-2 bg-muted rounded-full mt-4">
@@ -436,6 +315,7 @@ const BookingModal = ({ open, onOpenChange, preSelectedServiceId }: BookingModal
                     setPhone(e.target.value);
                     handleChange('phone', e.target.value);
                   }}
+                  onBlur={(e) => handleBlur('phone', e.target.value)}
                 >
                   {/* @ts-ignore */}
                   {(inputProps) => (
@@ -450,7 +330,6 @@ const BookingModal = ({ open, onOpenChange, preSelectedServiceId }: BookingModal
                           ? 'border-green-500 focus:border-green-500 focus:ring-green-500/20'
                           : ''
                       }`}
-                      onBlur={(e) => handleBlur('phone', e.target.value)}
                     />
                   )}
                 </InputMask>
@@ -482,7 +361,7 @@ const BookingModal = ({ open, onOpenChange, preSelectedServiceId }: BookingModal
                   Voltar
                 </Button>
                 <Button
-                  onClick={handleConfirm}
+                  onClick={handleConfirmAndClose}
                   disabled={!name || !phone}
                   className="flex-1 w-full bg-primary"
                 >

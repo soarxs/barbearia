@@ -9,7 +9,19 @@ import {
 } from './adminState.js';
 
 export function formatLocalDateKey(date) {
+  if (!date) {
+    console.warn('formatLocalDateKey: date is null or undefined');
+    return null;
+  }
+  
   const d = new Date(date);
+  
+  // Verificar se a data é válida
+  if (isNaN(d.getTime())) {
+    console.warn('formatLocalDateKey: invalid date provided:', date);
+    return null;
+  }
+  
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
@@ -115,6 +127,24 @@ export async function updateAppointment(id, updates) {
 
 export async function isTimeTaken(date, time, barberId, barbershopId) {
   try {
+    // Validar parâmetros
+    if (!date || !time || !barberId || !barbershopId) {
+      console.warn('isTimeTaken: missing required parameters', { date, time, barberId, barbershopId });
+      return false;
+    }
+    
+    const formattedDate = formatLocalDateKey(date);
+    if (!formattedDate) {
+      console.warn('isTimeTaken: invalid date format', date);
+      return false;
+    }
+    
+    // Validar se barberId não é um UUID de barbershop (erro comum)
+    if (barberId === barbershopId) {
+      console.warn('isTimeTaken: barberId is same as barbershopId, skipping query', { barberId, barbershopId });
+      return false;
+    }
+    
     // Usar o barbershopId diretamente (já vem correto do useTenant)
     const actualBarbershopId = barbershopId;
     
@@ -122,13 +152,16 @@ export async function isTimeTaken(date, time, barberId, barbershopId) {
       .from('appointments')
       .select('id')
       .eq('barbershop_id', actualBarbershopId)
-      .eq('date', formatLocalDateKey(date))
+      .eq('date', formattedDate)
       .eq('time', time)
       .eq('barber_id', barberId)
       .eq('status', 'confirmado')
       .single();
     
-    if (error && error.code !== 'PGRST116') throw error;
+    if (error && error.code !== 'PGRST116') {
+      console.error('isTimeTaken: Supabase error', error);
+      return false;
+    }
     return !!data;
   } catch (error) {
     console.error('Erro ao verificar horário ocupado:', error);

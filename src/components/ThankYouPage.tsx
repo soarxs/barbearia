@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from './ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { CheckCircle, Calendar, Clock, User, Phone, MapPin, ArrowLeft } from 'lucide-react';
+import { Card, CardContent } from './ui/card';
+import { CheckCircle, Calendar, Clock, User, Phone, ArrowLeft, MessageCircle } from 'lucide-react';
 
 interface AppointmentData {
   id: string;
@@ -20,15 +20,13 @@ const ThankYouPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [appointment, setAppointment] = useState<AppointmentData | null>(null);
-  const [countdown, setCountdown] = useState(10);
+  const [countdown, setCountdown] = useState(15);
 
   useEffect(() => {
-    // Pegar dados do agendamento da navegação
     const appointmentData = location.state?.appointment;
     if (appointmentData) {
       setAppointment(appointmentData);
     } else {
-      // Se não houver dados, redirecionar para home
       navigate('/');
     }
   }, [location.state, navigate]);
@@ -62,155 +60,128 @@ const ThankYouPage: React.FC = () => {
 
   if (!appointment) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">Carregando...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-3 text-muted-foreground text-sm">Carregando...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl">
-        {/* Header com animação */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-4 animate-pulse">
-            <CheckCircle className="w-12 h-12 text-green-600" />
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="w-full max-w-md mx-auto">
+        {/* Success Icon */}
+        <div className="text-center mb-6">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
+            <CheckCircle className="w-10 h-10 text-green-600" />
           </div>
-          <h1 className="text-4xl font-bold text-foreground mb-2">
+          <h1 className="text-2xl font-bold text-foreground mb-2">
             Agendamento Confirmado!
           </h1>
-          <p className="text-xl text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             Seu horário foi reservado com sucesso
           </p>
         </div>
 
-        {/* Card principal */}
-        <Card className="shadow-2xl border-0 bg-white/80 backdrop-blur-sm">
-          <CardHeader className="text-center pb-4">
-            <CardTitle className="text-2xl text-foreground">
-              Detalhes do Agendamento
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Informações do agendamento */}
-            <div className="grid gap-4">
-              <div className="flex items-center space-x-3 p-4 bg-primary/5 rounded-lg">
-                <Calendar className="w-5 h-5 text-primary" />
-                <div>
-                  <p className="font-medium text-foreground">
-                    {formatDate(appointment.date)}
-                  </p>
-                  <p className="text-sm text-muted-foreground">Data do agendamento</p>
+        {/* Main Card */}
+        <Card className="shadow-lg border-0 bg-card">
+          <CardContent className="p-6 space-y-4">
+            {/* Appointment Details */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between py-2 border-b border-border/50">
+                <div className="flex items-center space-x-3">
+                  <Calendar className="w-4 h-4 text-primary" />
+                  <span className="text-sm text-muted-foreground">Data</span>
                 </div>
+                <span className="text-sm font-medium text-foreground">
+                  {formatDate(appointment.date)}
+                </span>
               </div>
 
-              <div className="flex items-center space-x-3 p-4 bg-primary/5 rounded-lg">
-                <Clock className="w-5 h-5 text-primary" />
-                <div>
-                  <p className="font-medium text-foreground">
-                    {appointment.time}
-                  </p>
-                  <p className="text-sm text-muted-foreground">Horário agendado</p>
+              <div className="flex items-center justify-between py-2 border-b border-border/50">
+                <div className="flex items-center space-x-3">
+                  <Clock className="w-4 h-4 text-primary" />
+                  <span className="text-sm text-muted-foreground">Horário</span>
                 </div>
+                <span className="text-sm font-medium text-foreground">
+                  {appointment.time}
+                </span>
               </div>
 
-              <div className="flex items-center space-x-3 p-4 bg-primary/5 rounded-lg">
-                <User className="w-5 h-5 text-primary" />
-                <div>
-                  <p className="font-medium text-foreground">
-                    {appointment.service_name}
-                  </p>
-                  <p className="text-sm text-muted-foreground">Serviço</p>
+              <div className="flex items-center justify-between py-2 border-b border-border/50">
+                <div className="flex items-center space-x-3">
+                  <User className="w-4 h-4 text-primary" />
+                  <span className="text-sm text-muted-foreground">Serviço</span>
                 </div>
+                <span className="text-sm font-medium text-foreground">
+                  {appointment.service_name}
+                </span>
               </div>
 
-              <div className="flex items-center space-x-3 p-4 bg-primary/5 rounded-lg">
-                <User className="w-5 h-5 text-primary" />
-                <div>
-                  <p className="font-medium text-foreground">
-                    {appointment.barber_name}
-                  </p>
-                  <p className="text-sm text-muted-foreground">Profissional</p>
+              <div className="flex items-center justify-between py-2 border-b border-border/50">
+                <div className="flex items-center space-x-3">
+                  <User className="w-4 h-4 text-primary" />
+                  <span className="text-sm text-muted-foreground">Barbeiro</span>
                 </div>
+                <span className="text-sm font-medium text-foreground">
+                  {appointment.barber_name}
+                </span>
               </div>
-
-              {appointment.client_phone && (
-                <div className="flex items-center space-x-3 p-4 bg-primary/5 rounded-lg">
-                  <Phone className="w-5 h-5 text-primary" />
-                  <div>
-                    <p className="font-medium text-foreground">
-                      {appointment.client_phone}
-                    </p>
-                    <p className="text-sm text-muted-foreground">Telefone de contato</p>
-                  </div>
-                </div>
-              )}
-
-              {appointment.notes && (
-                <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-                  <p className="text-sm text-yellow-800">
-                    <strong>Observação:</strong> {appointment.notes}
-                  </p>
-                </div>
-              )}
             </div>
 
-            {/* Status do agendamento */}
-            <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
-              <p className="text-green-800 font-medium">
-                Status: {appointment.status === 'confirmado' ? 'Confirmado' : 'Pendente de Confirmação'}
+            {/* Status */}
+            <div className="text-center py-3 bg-green-50 rounded-lg border border-green-200">
+              <p className="text-green-800 font-medium text-sm">
+                Status: {appointment.status === 'confirmado' ? 'Confirmado' : 'Pendente'}
               </p>
-              {appointment.status !== 'confirmado' && (
-                <p className="text-sm text-green-600 mt-1">
-                  Aguardando confirmação da barbearia
-                </p>
-              )}
             </div>
 
-            {/* Botões de ação */}
-            <div className="flex flex-col sm:flex-row gap-3 pt-4">
+            {/* Action Buttons */}
+            <div className="space-y-3 pt-2">
               <Button 
                 onClick={openWhatsApp}
-                className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+                className="w-full bg-green-600 hover:bg-green-700 text-white"
+                size="sm"
               >
-                <Phone className="w-4 h-4 mr-2" />
+                <MessageCircle className="w-4 h-4 mr-2" />
                 Confirmar via WhatsApp
               </Button>
               
               <Button 
                 variant="outline" 
                 onClick={() => navigate('/')}
-                className="flex-1"
+                className="w-full"
+                size="sm"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Voltar ao Início
               </Button>
             </div>
 
-            {/* Informações importantes */}
-            <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-              <h3 className="font-medium text-blue-900 mb-2">Informações Importantes:</h3>
-              <ul className="text-sm text-blue-800 space-y-1">
-                <li>• Chegue com 10 minutos de antecedência</li>
-                <li>• Em caso de atraso, entre em contato conosco</li>
-                <li>• Para cancelar, avise com pelo menos 2 horas de antecedência</li>
-                <li>• Traga um documento com foto para identificação</li>
-              </ul>
+            {/* Important Info */}
+            <div className="pt-4 border-t border-border/50">
+              <h3 className="font-medium text-foreground text-sm mb-3">
+                Informações Importantes
+              </h3>
+              <div className="space-y-2 text-xs text-muted-foreground">
+                <p>• Chegue com 10 minutos de antecedência</p>
+                <p>• Em caso de atraso, entre em contato</p>
+                <p>• Para cancelar, avise com 2h de antecedência</p>
+              </div>
             </div>
 
-            {/* Contador para redirecionamento */}
-            <div className="text-center text-sm text-muted-foreground">
-              <p>Você será redirecionado automaticamente em {countdown} segundos</p>
+            {/* Countdown */}
+            <div className="text-center text-xs text-muted-foreground pt-2">
+              Redirecionando em {countdown}s
             </div>
           </CardContent>
         </Card>
 
         {/* Footer */}
-        <div className="text-center mt-8">
-          <p className="text-muted-foreground">
+        <div className="text-center mt-6">
+          <p className="text-muted-foreground text-sm">
             Obrigado por escolher nossa barbearia! 💈
           </p>
         </div>
