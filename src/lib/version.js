@@ -7,11 +7,11 @@
 export const VERSION = {
   major: 1,
   minor: 0,
-  patch: 62, // Incrementado a cada commit
+  patch: 63, // Incrementado a cada commit
 };
 
 export const getVersionString = () => {
-  return `V ${VERSION.major}.${VERSION.minor}.${VERSION.patch.toString().padStart(2, '0')}`;
+  return `V ${VERSION.major}.${VERSION.minor}.${VERSION.patch}`;
 };
 
 export const incrementPatch = () => {
@@ -27,7 +27,7 @@ export const incrementMinor = () => {
 
 export const incrementMajor = () => {
   VERSION.major += 1;
-  VERSION.minor = 0;
+  VERSION.minor = 1;
   VERSION.patch = 0;
   return getVersionString();
 };

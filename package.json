@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "version:patch": "node scripts/version.js",
-    "version:deploy": "node scripts/deploy-version.js"
+    "version:deploy": "node scripts/deploy-version.js",
+    "version:major": "node scripts/major-version.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

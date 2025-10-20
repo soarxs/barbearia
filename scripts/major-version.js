@@ -13,23 +13,23 @@ const VERSION_FILE = path.join(__dirname, '../src/lib/version.js');
 const versionContent = fs.readFileSync(VERSION_FILE, 'utf8');
 
 // Extrai a versão atual
-const minorMatch = versionContent.match(/minor:\s*(\d+)/);
-const patchMatch = versionContent.match(/patch:\s*(\d+)/);
+const majorMatch = versionContent.match(/major:\s*(\d+)/);
 
-if (!minorMatch || !patchMatch) {
-  console.error('Erro: Não foi possível encontrar a versão minor/patch');
+if (!majorMatch) {
+  console.error('Erro: Não foi possível encontrar a versão major');
   process.exit(1);
 }
 
-const currentMinor = parseInt(minorMatch[1]);
-const newMinor = currentMinor + 1;
+const currentMajor = parseInt(majorMatch[1]);
+const newMajor = currentMajor + 1;
 
 // Atualiza o arquivo
 const newContent = versionContent
-  .replace(/minor:\s*\d+/, `minor: ${newMinor}`)
+  .replace(/major:\s*\d+/, `major: ${newMajor}`)
+  .replace(/minor:\s*\d+/, `minor: 1`)
   .replace(/patch:\s*\d+/, `patch: 0`);
 
 fs.writeFileSync(VERSION_FILE, newContent);
 
-console.log(`🚀 Deploy version: V 1.${newMinor}.0`);
+console.log(`🎯 Major version: V ${newMajor}.1.0`);
 console.log(`📝 Arquivo atualizado: ${VERSION_FILE}`);

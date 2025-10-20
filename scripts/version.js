@@ -30,5 +30,5 @@ const newContent = versionContent.replace(
 
 fs.writeFileSync(VERSION_FILE, newContent);
 
-console.log(`✅ Versão atualizada: V 1.0.${newPatch.toString().padStart(2, '0')}`);
+console.log(`✅ Versão atualizada: V 1.0.${newPatch}`);
 console.log(`📝 Arquivo atualizado: ${VERSION_FILE}`);
