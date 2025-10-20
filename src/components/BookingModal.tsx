@@ -27,7 +27,7 @@ const BookingModal = ({ open, onOpenChange, preSelectedServiceId }: BookingModal
   const { data: tenant } = useTenant();
   const {
     step, setStep,
-    selectedService, selectedBarber, selectedDate, selectedTime,
+    selectedService, setSelectedService, selectedBarber, selectedDate, selectedTime,
     name, setName, phone, setPhone,
     times, setTimes, takenTimes, setTakenTimes,
     barbers, services,
