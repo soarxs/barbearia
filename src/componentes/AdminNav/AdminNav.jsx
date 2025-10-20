@@ -24,6 +24,7 @@ function AdminNav() {
         <div className="collapse navbar-collapse" id="adminNav">
           <ul className="navbar-nav ms-auto align-items-lg-center gap-lg-2">
             <li className="nav-item"><NavLink to="/admin/agenda" className="nav-link">Agenda</NavLink></li>
+            <li className="nav-item"><NavLink to="/admin/agendamentos" className="nav-link">Agendamentos</NavLink></li>
             <li className="nav-item"><NavLink to="/admin/dashboard" className="nav-link">Dashboard</NavLink></li>
             <li className="nav-item"><NavLink to="/admin/servicos" className="nav-link">Configurações</NavLink></li>
             <li className="nav-item d-flex align-items-center">

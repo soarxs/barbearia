@@ -42,17 +42,21 @@ const ThankYouPage: React.FC = () => {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('pt-BR', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+    const day = date.getDate();
+    const month = date.toLocaleDateString('pt-BR', { month: 'long' });
+    const year = date.getFullYear();
+    const weekday = date.toLocaleDateString('pt-BR', { weekday: 'long' });
+    
+    return {
+      weekday: weekday.charAt(0).toUpperCase() + weekday.slice(1),
+      date: `${day} de ${month} de ${year}`
+    };
   };
 
   const openWhatsApp = () => {
     if (appointment?.client_phone) {
-      const message = `Olá! Confirmei meu agendamento para ${formatDate(appointment.date)} às ${appointment.time}. Obrigado!`;
+      const formattedDate = formatDate(appointment.date);
+      const message = `Olá! Confirmei meu agendamento para ${formattedDate.weekday}, ${formattedDate.date} às ${appointment.time}. Obrigado!`;
       const phone = appointment.client_phone.replace(/\D/g, '');
       window.open(`https://wa.me/55${phone}?text=${encodeURIComponent(message)}`, '_blank');
     }
@@ -90,14 +94,19 @@ const ThankYouPage: React.FC = () => {
           <CardContent className="p-6 space-y-4">
             {/* Appointment Details */}
             <div className="space-y-3">
-              <div className="flex items-center justify-between py-2 border-b border-border/50">
+              <div className="flex items-start justify-between py-2 border-b border-border/50">
                 <div className="flex items-center space-x-3">
                   <Calendar className="w-4 h-4 text-primary" />
                   <span className="text-sm text-muted-foreground">Data</span>
                 </div>
-                <span className="text-sm font-medium text-foreground">
-                  {formatDate(appointment.date)}
-                </span>
+                <div className="text-right">
+                  <div className="text-sm font-medium text-foreground">
+                    {formatDate(appointment.date).weekday}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {formatDate(appointment.date).date}
+                  </div>
+                </div>
               </div>
 
               <div className="flex items-center justify-between py-2 border-b border-border/50">

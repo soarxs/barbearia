@@ -14,6 +14,7 @@ import AdminPanel from './components/AdminPanel.tsx';
 import AguardandoAprovacao from './pages/AguardandoAprovacao.jsx';
 import AcessoNegado from './pages/AcessoNegado.jsx';
 import Agenda from './componentes/AgendaAdmin/Agenda.jsx';
+import Agendamentos from './componentes/AgendamentosAdmin/Agendamentos.jsx';
 import ServicosAdmin from './componentes/ServicosAdmin/Servicos.jsx';
 import ThankYouPage from './components/ThankYouPage.tsx';
 import PWAInstallPrompt from './components/PWAInstallPrompt.tsx';
@@ -42,6 +43,7 @@ const App = () => (
                   }
                 >
                   <Route path="agenda" element={<Agenda />} />
+                  <Route path="agendamentos" element={<Agendamentos />} />
                   <Route path="dashboard" element={<Dashboard onGo={(s) => window.location.assign(`/admin/${s}`)} />} />
                   <Route path="painel" element={<AdminPanel />} />
                   <Route path="servicos" element={<ServicosAdmin />} />
