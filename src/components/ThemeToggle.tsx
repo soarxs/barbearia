@@ -1,10 +1,36 @@
 import React from 'react';
 import { Button } from './ui/button';
-import { Moon, Sun } from 'lucide-react';
+import { Moon, Sun, Monitor } from 'lucide-react';
 import { useTheme } from '@/hooks/useTheme';
 
 const ThemeToggle: React.FC = () => {
-  const { theme, toggleTheme } = useTheme();
+  const { theme, resolvedTheme, toggleTheme } = useTheme();
+
+  const getIcon = () => {
+    switch (theme) {
+      case 'light':
+        return <Sun className="h-4 w-4" />;
+      case 'dark':
+        return <Moon className="h-4 w-4" />;
+      case 'system':
+        return <Monitor className="h-4 w-4" />;
+      default:
+        return <Monitor className="h-4 w-4" />;
+    }
+  };
+
+  const getLabel = () => {
+    switch (theme) {
+      case 'light':
+        return 'Tema claro (manual)';
+      case 'dark':
+        return 'Tema escuro (manual)';
+      case 'system':
+        return `Tema do sistema (${resolvedTheme === 'dark' ? 'escuro' : 'claro'})`;
+      default:
+        return 'Tema do sistema';
+    }
+  };
 
   return (
     <Button
@@ -12,16 +38,10 @@ const ThemeToggle: React.FC = () => {
       size="sm"
       onClick={toggleTheme}
       className="h-9 w-9 p-0"
-      title={theme === 'light' ? 'Mudar para tema escuro' : 'Mudar para tema claro'}
+      title={getLabel()}
     >
-      {theme === 'light' ? (
-        <Moon className="h-4 w-4" />
-      ) : (
-        <Sun className="h-4 w-4" />
-      )}
-      <span className="sr-only">
-        {theme === 'light' ? 'Mudar para tema escuro' : 'Mudar para tema claro'}
-      </span>
+      {getIcon()}
+      <span className="sr-only">{getLabel()}</span>
     </Button>
   );
 };
