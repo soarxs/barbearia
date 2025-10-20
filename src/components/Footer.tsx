@@ -1,4 +1,5 @@
 import { Scissors, Instagram, Phone, Mail } from 'lucide-react';
+import { getVersionString } from '@/lib/version.js';
 
 const Footer = () => {
   return (
@@ -70,6 +71,9 @@ const Footer = () => {
         <div className="border-t border-border pt-6 sm:pt-8 text-center">
           <p className="text-xs sm:text-sm text-muted-foreground px-4">
             Desenvolvido por <span className="text-primary font-semibold">Guilherme Ferreira</span> © 2025 BarberTime. Todos os direitos reservados.
+          </p>
+          <p className="text-xs text-muted-foreground mt-2 opacity-60">
+            {getVersionString()}
           </p>
         </div>
       </div>
