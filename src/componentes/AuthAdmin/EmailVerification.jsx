@@ -68,7 +68,7 @@ function EmailVerification({ email, onBack }) {
         <div className="d-grid gap-2">
           <button 
             type="button" 
-            className="btn btn-gold"
+            className="btn btn-blue"
             onClick={handleResendEmail}
             disabled={isResending}
           >

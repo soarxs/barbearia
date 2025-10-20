@@ -25,26 +25,26 @@
   border-radius: 999px;
 }
 
-.agenda-admin .btn-gold {
-  background: linear-gradient(135deg, #ffd700, #ffed4e);
-  color: #000;
+.agenda-admin .btn-blue {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: #fff;
   border: none;
   font-weight: 600;
 }
 
-.agenda-admin .btn-gold:hover {
-  background: linear-gradient(135deg, #ffed4e, #ffd700);
-  color: #000;
+.agenda-admin .btn-blue:hover {
+  background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+  color: #fff;
 }
 
-.agenda-admin .btn-outline-gold {
-  color: #ffd700;
-  border-color: #ffd700;
+.agenda-admin .btn-outline-blue {
+  color: #3b82f6;
+  border-color: #3b82f6;
 }
 
-.agenda-admin .btn-outline-gold:hover {
-  background: #ffd700;
-  color: #000;
+.agenda-admin .btn-outline-blue:hover {
+  background: #3b82f6;
+  color: #fff;
 }
 
 .agenda-admin .form-control {

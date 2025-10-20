@@ -124,7 +124,7 @@ function Login() {
               />
               <button 
                 type="button" 
-                className="btn btn-outline-gold" 
+                className="btn btn-outline-blue" 
                 onClick={() => setShow(s => !s)}
                 disabled={isLoading}
               >
@@ -148,7 +148,7 @@ function Login() {
           {error && <div className="alert alert-danger py-2">{error}</div>}
           <button 
             type="submit" 
-            className="btn btn-gold w-100" 
+            className="btn btn-blue w-100" 
             disabled={isLoading}
           >
             {isLoading ? (

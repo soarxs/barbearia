@@ -29,7 +29,7 @@ function AdminNav() {
             <li className="nav-item d-flex align-items-center">
               <ThemeToggle />
             </li>
-            <li className="nav-item ms-lg-2 mt-2 mt-lg-0"><button className="btn btn-outline-gold" onClick={logout}>Logout</button></li>
+            <li className="nav-item ms-lg-2 mt-2 mt-lg-0"><button className="btn btn-outline-blue" onClick={logout}>Logout</button></li>
           </ul>
         </div>
       </div>

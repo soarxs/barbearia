@@ -58,7 +58,7 @@ export function UserForm({ onSubmit, loading = false, initialData = {} }) {
           </div>
           <button
             type="submit"
-            className="btn btn-gold"
+            className="btn btn-blue"
             disabled={loading}
           >
             {loading ? (

@@ -17,40 +17,40 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 0%;
 
-    --primary: 45 93% 58%;
-    --primary-foreground: 0 0% 0%;
+    --primary: 210 100% 50%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 22 80% 42%;
+    --secondary: 210 100% 40%;
     --secondary-foreground: 0 0% 100%;
 
     --muted: 0 0% 96%;
     --muted-foreground: 0 0% 60%;
 
-    --accent: 45 93% 58%;
-    --accent-foreground: 0 0% 0%;
+    --accent: 210 100% 50%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
 
     --border: 0 0% 90%;
     --input: 0 0% 90%;
-    --ring: 45 93% 58%;
+    --ring: 210 100% 50%;
 
     --radius: 0.5rem;
 
     /* BarberTime Custom Tokens */
-    --gold: 45 93% 58%;
-    --brick-orange: 22 80% 42%;
+    --blue-primary: 210 100% 50%;
+    --blue-secondary: 210 100% 40%;
     --pure-black: 0 0% 0%;
     --off-white: 0 0% 95%;
     --dark-gray: 0 0% 15%;
     
     /* Gradients */
-    --gradient-hero: linear-gradient(135deg, hsl(var(--brick-orange)) 0%, hsl(var(--gold)) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(var(--blue-secondary)) 0%, hsl(var(--blue-primary)) 100%);
     --gradient-overlay: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.9) 100%);
     
     /* Shadows */
-    --shadow-glow: 0 0 30px hsl(var(--gold) / 0.3);
+    --shadow-glow: 0 0 30px hsl(var(--blue-primary) / 0.3);
     --shadow-card: 0 10px 40px rgba(0, 0, 0, 0.1);
     
     /* Transitions */
@@ -67,24 +67,24 @@ All colors MUST be HSL.
     --popover: 0 0% 5%;
     --popover-foreground: 0 0% 100%;
 
-    --primary: 45 93% 58%;
-    --primary-foreground: 0 0% 0%;
+    --primary: 210 100% 50%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 22 80% 42%;
+    --secondary: 210 100% 40%;
     --secondary-foreground: 0 0% 100%;
 
     --muted: 0 0% 15%;
     --muted-foreground: 0 0% 80%;
 
-    --accent: 45 93% 58%;
-    --accent-foreground: 0 0% 0%;
+    --accent: 210 100% 50%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
 
     --border: 0 0% 20%;
     --input: 0 0% 20%;
-    --ring: 45 93% 58%;
+    --ring: 210 100% 50%;
     
     /* Shadows for dark theme */
     --shadow-card: 0 10px 40px rgba(0, 0, 0, 0.5);
@@ -169,22 +169,22 @@ All colors MUST be HSL.
 }
 
 /* BarberTime brand utilities (Bootstrap-friendly) */
-.text-gold { color: hsl(var(--gold)) !important; }
+.text-blue { color: hsl(var(--blue-primary)) !important; }
 .text-muted-light { color: hsl(var(--off-white) / 0.7) !important; }
 .bg-black { background-color: #000 !important; }
-.btn-gold {
-  background: hsl(var(--gold));
-  color: #000;
+.btn-blue {
+  background: hsl(var(--blue-primary));
+  color: #fff;
   border: none;
   border-radius: 999px;
-  box-shadow: 0 8px 24px rgba(241,196,15,0.25);
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.25);
   transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
 }
-.btn-gold:hover { filter: brightness(1.05); transform: translateY(-1px); box-shadow: 0 10px 28px rgba(241,196,15,0.35); }
-.btn-outline-gold { color: hsl(var(--gold)); border: 1px solid hsl(var(--gold)); border-radius: 999px; }
-.btn-outline-gold:hover { background: hsl(var(--gold)); color: #000; }
+.btn-blue:hover { filter: brightness(1.05); transform: translateY(-1px); box-shadow: 0 10px 28px rgba(59, 130, 246, 0.35); }
+.btn-outline-blue { color: hsl(var(--blue-primary)); border: 1px solid hsl(var(--blue-primary)); border-radius: 999px; }
+.btn-outline-blue:hover { background: hsl(var(--blue-primary)); color: #fff; }
 .hover-gradient { transition: background .3s ease, transform .3s ease; }
-.hover-gradient:hover { background: linear-gradient(135deg, rgba(241,196,15,0.15), rgba(211,84,0,0.15)); transform: translateY(-2px); }
+.hover-gradient:hover { background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(37, 99, 235, 0.15)); transform: translateY(-2px); }
 
 /* Enhanced Animations */
 @keyframes fadeIn {

@@ -50,7 +50,7 @@ function Dashboard({ onGo }) {
           <div className="card stat-card bg-dark text-white">
             <div className="card-body">
               <div className="small text-muted">Total faturado</div>
-              <div className="fs-3 text-gold">R$ {totals.revenue.toFixed(2)}</div>
+              <div className="fs-3 text-blue">R$ {totals.revenue.toFixed(2)}</div>
               <div className="small text-muted">Média diária: R$ {totals.dailyAvg}</div>
             </div>
           </div>
@@ -102,10 +102,10 @@ function Dashboard({ onGo }) {
             <div className="card-body">
               <div className="fw-semibold mb-3">Atalhos</div>
               <div className="d-flex flex-wrap gap-2">
-                <button className="btn btn-gold" onClick={() => onGo('agenda')}>Ir para Agenda</button>
-                <button className="btn btn-outline-gold" onClick={() => onGo('aprovar')}>🔔 Painel de Aprovações</button>
-                <button className="btn btn-outline-gold" onClick={() => onGo('servicos')}>Editar Serviços</button>
-                <button className="btn btn-outline-gold" onClick={() => alert('Relatórios em breve')}>Relatórios</button>
+                <button className="btn btn-blue" onClick={() => onGo('agenda')}>Ir para Agenda</button>
+                <button className="btn btn-outline-blue" onClick={() => onGo('aprovar')}>🔔 Painel de Aprovações</button>
+                <button className="btn btn-outline-blue" onClick={() => onGo('servicos')}>Editar Serviços</button>
+                <button className="btn btn-outline-blue" onClick={() => alert('Relatórios em breve')}>Relatórios</button>
               </div>
             </div>
           </div>

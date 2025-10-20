@@ -344,7 +344,7 @@ function Servicos() {
                 </div>
                     {s.description && <p className="text-muted small">{s.description}</p>}
                 <div className="mt-auto d-flex gap-2">
-                      <button className="btn btn-sm btn-outline-gold" onClick={() => onEditService(s)}>Editar</button>
+                      <button className="btn btn-sm btn-outline-blue" onClick={() => onEditService(s)}>Editar</button>
                       <button className="btn btn-sm btn-danger" onClick={() => { if (confirm('Remover este serviço?')) onRemoveService(s.id); }}>Remover</button>
                 </div>
               </div>
@@ -373,7 +373,7 @@ function Servicos() {
                   <textarea className="form-control bg-dark text-white border-secondary" value={serviceForm.description} onChange={(e) => setServiceForm({ ...serviceForm, description: e.target.value })} placeholder="Descrição do serviço..." rows="3" />
                 </div>
                 <div className="col-12">
-                  <button type="submit" className="btn btn-gold">{editing ? 'Salvar Alterações' : 'Adicionar'}</button>
+                  <button type="submit" className="btn btn-blue">{editing ? 'Salvar Alterações' : 'Adicionar'}</button>
                 </div>
               </form>
             </div>
@@ -398,7 +398,7 @@ function Servicos() {
                            <button className="btn btn-sm btn-outline-primary" onClick={() => openBarberScheduleModal(b.id)} title="Configurar Horários">
                              <i className="fas fa-clock"></i>
                            </button>
-                           <button className="btn btn-sm btn-outline-gold" onClick={() => onEditBarber(b)}>Editar</button>
+                           <button className="btn btn-sm btn-outline-blue" onClick={() => onEditBarber(b)}>Editar</button>
                            <button className="btn btn-sm btn-danger" onClick={() => { if (confirm('Remover este profissional?')) onRemoveBarber(b.id); }}>Remover</button>
                          </div>
                   </div>
@@ -424,7 +424,7 @@ function Servicos() {
                   <input className="form-control bg-dark text-white border-secondary" value={barberForm.phone} onChange={(e) => setBarberForm({ ...barberForm, phone: e.target.value })} placeholder="(11) 99999-9999" />
             </div>
             <div className="col-12">
-              <button type="submit" className="btn btn-gold">{editing ? 'Salvar Alterações' : 'Adicionar'}</button>
+              <button type="submit" className="btn btn-blue">{editing ? 'Salvar Alterações' : 'Adicionar'}</button>
             </div>
           </form>
         </div>
@@ -475,7 +475,7 @@ function Servicos() {
                     <button
                       key={day.num}
                       type="button"
-                      className={`btn btn-sm ${schedule.workingDays.includes(day.num) ? 'btn-gold' : 'btn-outline-secondary'}`}
+                      className={`btn btn-sm ${schedule.workingDays.includes(day.num) ? 'btn-blue' : 'btn-outline-secondary'}`}
                       onClick={() => toggleDay(day.num)}
                     >
                       {day.name}

@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 function ToggleDay({ value, onChange, label }) {
   const active = value;
   return (
-    <button type="button" className={`btn btn-sm ${active ? 'btn-gold' : 'btn-outline-gold'}`} onClick={onChange}>{label}</button>
+    <button type="button" className={`btn btn-sm ${active ? 'btn-blue' : 'btn-outline-blue'}`} onClick={onChange}>{label}</button>
   );
 }
 
@@ -168,7 +168,7 @@ function Config() {
               <h5>Barbeiros</h5>
               <div className="input-group my-2">
                 <input className="form-control bg-dark text-white border-secondary" value={barberName} onChange={(e)=>setBarberName(e.target.value)} placeholder="Nome do barbeiro" />
-                <button className="btn btn-gold" onClick={addBarberHandler}>Adicionar</button>
+                <button className="btn btn-blue" onClick={addBarberHandler}>Adicionar</button>
               </div>
               <ul className="list-group list-group-flush">
                 {barbers.map(b => (
@@ -199,7 +199,7 @@ function Config() {
                     reader.readAsDataURL(file);
                   }} />
                 </div>
-                <div className="col-12 col-md-2"><button className="btn btn-gold w-100" onClick={addServiceHandler}>Adicionar</button></div>
+                <div className="col-12 col-md-2"><button className="btn btn-blue w-100" onClick={addServiceHandler}>Adicionar</button></div>
               </div>
               <ul className="list-group list-group-flush">
                 {services.map(s => (
