@@ -30,7 +30,7 @@ const Hero = ({ onBookingClick }: HeroProps) => {
             <span className="gradient-text">se cria.</span>
           </h1>
           
-          <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground mb-8 sm:mb-10 max-w-2xl mx-auto px-4">
+          <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground dark:text-muted-foreground light:text-foreground mb-8 sm:mb-10 max-w-2xl mx-auto px-4" style={{ color: 'var(--muted-foreground)' }}>
             Agende seu horário com os melhores barbeiros da cidade.
           </p>
           
