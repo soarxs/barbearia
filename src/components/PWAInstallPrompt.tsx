@@ -15,15 +15,29 @@ const PWAInstallPrompt: React.FC = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
+  const [isIOS, setIsIOS] = useState(false);
 
   useEffect(() => {
+    // Detect iOS
+    const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    setIsIOS(isIOSDevice);
+
     // Check if app is already installed
     if (window.matchMedia('(display-mode: standalone)').matches) {
       setIsInstalled(true);
       return;
     }
 
-    // Listen for the beforeinstallprompt event
+    // For iOS, show prompt after a delay
+    if (isIOSDevice) {
+      const timer = setTimeout(() => {
+        setShowInstallPrompt(true);
+      }, 3000); // Show after 3 seconds
+      return () => clearTimeout(timer);
+    }
+
+    // Listen for the beforeinstallprompt event (Android/Desktop)
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
@@ -47,6 +61,13 @@ const PWAInstallPrompt: React.FC = () => {
   }, []);
 
   const handleInstallClick = async () => {
+    if (isIOS) {
+      // For iOS, show instructions
+      alert('Para instalar o app no iOS:\n\n1. Toque no botão de compartilhar (□↑)\n2. Selecione "Adicionar à Tela Inicial"\n3. Toque em "Adicionar"');
+      setShowInstallPrompt(false);
+      return;
+    }
+
     if (!deferredPrompt) return;
 
     deferredPrompt.prompt();
@@ -88,7 +109,10 @@ const PWAInstallPrompt: React.FC = () => {
               Instalar BarberTime
             </h3>
             <p className="text-xs text-muted-foreground mt-1">
-              Instale nosso app para acesso rápido e notificações
+              {isIOS 
+                ? 'Adicione à tela inicial para acesso rápido'
+                : 'Instale nosso app para acesso rápido e notificações'
+              }
             </p>
             
             <div className="flex gap-2 mt-3">
@@ -97,7 +121,7 @@ const PWAInstallPrompt: React.FC = () => {
                 onClick={handleInstallClick}
                 className="text-xs"
               >
-                Instalar
+                {isIOS ? 'Como Instalar' : 'Instalar'}
               </Button>
               <Button
                 size="sm"
