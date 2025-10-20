@@ -7,9 +7,9 @@ import { useFormValidation, validationRules } from '@/hooks/useFormValidation';
 import { toast } from 'sonner';
 import { MOCK_BARBERS, MOCK_SERVICES, DEFAULT_TIMES } from '@/lib/constants.js';
 
-export const useBooking = (preSelectedServiceId) => {
+export const useBooking = (preSelectedServiceId, enabled = true) => {
   const { data: tenant } = useTenant();
-  const { barbers: syncBarbers, services: syncServices, schedules } = useDataSync(tenant?.barbershop?.id);
+  const { barbers: syncBarbers, services: syncServices, schedules } = useDataSync(enabled ? tenant?.barbershop?.id : null);
   const navigate = useNavigate();
 
   // Estados do booking

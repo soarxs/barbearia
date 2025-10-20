@@ -10,7 +10,13 @@ export function useDataSync(barbershopId) {
   const [error, setError] = useState(null);
 
   const loadData = async () => {
-    if (!barbershopId) return;
+    if (!barbershopId) {
+      setBarbers([]);
+      setServices([]);
+      setSchedules({});
+      setLoading(false);
+      return;
+    }
     
     try {
       setLoading(true);

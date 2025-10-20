@@ -509,12 +509,21 @@ export async function setBarberSchedule(barbershopId, barberId, schedule) {
 
 export async function getAllBarberSchedules(barbershopId) {
   try {
+    if (!barbershopId) {
+      console.warn('getAllBarberSchedules: barbershopId não fornecido');
+      return [];
+    }
+
     const { data, error } = await supabase
       .from('barber_schedules')
       .select('*')
       .eq('barbershop_id', barbershopId);
 
-    if (error) throw error;
+    if (error) {
+      console.error('Erro ao buscar horários dos barbeiros:', error);
+      throw error;
+    }
+    
     return data || [];
   } catch (error) {
     console.error('Erro ao buscar horários dos barbeiros:', error);

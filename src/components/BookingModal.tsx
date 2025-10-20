@@ -36,7 +36,7 @@ const BookingModal = React.memo(({ open, onOpenChange, preSelectedServiceId }: B
     handleServiceSelect, handleBarberSelect, handleConfirm,
     handleBlur, handleChange,
     resetForm
-  } = useBooking(preSelectedServiceId);
+  } = useBooking(preSelectedServiceId, open);
 
   // Reset form when modal opens/closes
   useEffect(() => {
