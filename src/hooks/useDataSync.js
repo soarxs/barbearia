@@ -44,17 +44,11 @@ export function useDataSync(barbershopId) {
       });
       setSchedules(schedulesMap);
       
-      // Gerar slots de tempo para cada barbeiro
+      // Inicializar slots vazios - serão gerados sob demanda
       const slots = {};
-      for (const barber of barbersData || []) {
-        try {
-          const barberSlots = await generateTimeSlotsForBarber(selectedDate, barbershopId, barber.id);
-          slots[barber.id] = barberSlots;
-        } catch (error) {
-          console.error(`Erro ao carregar horários do barbeiro ${barber.name}:`, error);
-          slots[barber.id] = [];
-        }
-      }
+      (barbersData || []).forEach(barber => {
+        slots[barber.id] = [];
+      });
       setBarberTimeSlots(slots);
       
     } catch (err) {
@@ -127,6 +121,20 @@ export function useDataSync(barbershopId) {
     }
   };
 
+  const generateBarberTimeSlots = async (barberId, date = selectedDate) => {
+    try {
+      const slots = await generateTimeSlotsForBarber(date, barbershopId, barberId);
+      setBarberTimeSlots(prev => ({
+        ...prev,
+        [barberId]: slots
+      }));
+      return slots;
+    } catch (error) {
+      console.error(`Erro ao gerar horários do barbeiro ${barberId}:`, error);
+      return [];
+    }
+  };
+
   return {
     barbers,
     services,
@@ -142,7 +150,8 @@ export function useDataSync(barbershopId) {
     addAppointment: addAppointmentHandler,
     updateAppointment: updateAppointmentHandler,
     removeAppointment: removeAppointmentHandler,
-    openWhatsApp
+    openWhatsApp,
+    generateBarberTimeSlots
   };
 }
 

@@ -147,9 +147,17 @@ export const removeAppointment = (id, barbershopId) => appointmentsCRUD.delete(i
 // Time slot generation - consolidated
 const generateTimeSlots = async (date, barbershopId, barberId = null) => {
   try {
-    const schedule = barberId 
-      ? await getBarberSchedule(barbershopId, barberId)
-      : await getSchedule(barbershopId);
+    let schedule = null;
+    
+    // Tentar buscar horários específicos do barbeiro primeiro
+    if (barberId) {
+      schedule = await getBarberSchedule(barbershopId, barberId);
+    }
+    
+    // Se não encontrou horários específicos, usar horários gerais
+    if (!schedule) {
+      schedule = await getSchedule(barbershopId);
+    }
     
     if (!schedule) return [];
     
@@ -241,6 +249,11 @@ export const setSchedule = async (barbershopId, cfg) => {
 // Barber schedule management
 export const getBarberSchedule = async (barbershopId, barberId) => {
   try {
+    if (!barbershopId || !barberId) {
+      console.warn('getBarberSchedule: parâmetros inválidos', { barbershopId, barberId });
+      return null;
+    }
+
     const { data, error } = await supabase
       .from('barber_schedules')
       .select('*')
@@ -248,10 +261,13 @@ export const getBarberSchedule = async (barbershopId, barberId) => {
       .eq('barber_id', barberId)
       .single();
     
-    if (error && error.code !== 'PGRST116') throw error;
+    if (error && error.code !== 'PGRST116') {
+      console.warn('getBarberSchedule: erro ao buscar horários do barbeiro:', error);
+      return null;
+    }
     return data;
   } catch (error) {
-    console.error('Erro ao buscar horários do barbeiro:', error);
+    console.warn('getBarberSchedule: erro ao buscar horários do barbeiro:', error);
     return null;
   }
 };
