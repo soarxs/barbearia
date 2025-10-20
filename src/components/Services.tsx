@@ -92,7 +92,7 @@ const Services = ({ onBookingClick }: ServicesProps) => {
                       <span className="text-2xl">{service.icon}</span>
                       <h3 className="text-lg sm:text-xl font-bold">{service.title}</h3>
                     </div>
-                    <span className="badge bg-warning text-black px-3 py-1 rounded-full">R$ {service.price.toFixed(2)}</span>
+                    <span className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-medium">R$ {service.price.toFixed(2)}</span>
                   </div>
                 </div>
               </div>

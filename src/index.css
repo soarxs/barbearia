@@ -24,7 +24,7 @@ All colors MUST be HSL.
     --secondary-foreground: 0 0% 100%;
 
     --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 45%;
+    --muted-foreground: 0 0% 60%;
 
     --accent: 45 93% 58%;
     --accent-foreground: 0 0% 0%;
@@ -44,6 +44,17 @@ All colors MUST be HSL.
     --pure-black: 0 0% 0%;
     --off-white: 0 0% 95%;
     --dark-gray: 0 0% 15%;
+    
+    /* Gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(var(--brick-orange)) 0%, hsl(var(--gold)) 100%);
+    --gradient-overlay: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.9) 100%);
+    
+    /* Shadows */
+    --shadow-glow: 0 0 30px hsl(var(--gold) / 0.3);
+    --shadow-card: 0 10px 40px rgba(0, 0, 0, 0.1);
+    
+    /* Transitions */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .dark {
@@ -75,16 +86,8 @@ All colors MUST be HSL.
     --input: 0 0% 20%;
     --ring: 45 93% 58%;
     
-    /* Gradients */
-    --gradient-hero: linear-gradient(135deg, hsl(var(--brick-orange)) 0%, hsl(var(--gold)) 100%);
-    --gradient-overlay: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.9) 100%);
-    
-    /* Shadows */
-    --shadow-glow: 0 0 30px hsl(var(--gold) / 0.3);
+    /* Shadows for dark theme */
     --shadow-card: 0 10px 40px rgba(0, 0, 0, 0.5);
-    
-    /* Transitions */
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
