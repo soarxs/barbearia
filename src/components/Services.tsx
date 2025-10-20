@@ -13,7 +13,6 @@ interface ServicesProps {
 
 const Services = ({ onBookingClick }: ServicesProps) => {
   const { data: tenant } = useTenant()
-  const [flipped, setFlipped] = useState<Record<string, boolean>>({});
   const [services, setServices] = useState<Array<any>>([]);
   const [loading, setLoading] = useState(true);
 
@@ -73,19 +72,14 @@ const Services = ({ onBookingClick }: ServicesProps) => {
             services.map((service, index) => (
             <div
               key={service.id}
-              className="group bg-background rounded-lg overflow-hidden hover-lift cursor-pointer animate-slide-up [transform-style:preserve-3d] relative"
+              className="group bg-background rounded-lg overflow-hidden hover-lift cursor-pointer animate-slide-up"
               style={{ 
                 animationDelay: `${index * 0.1}s`,
                 boxShadow: 'var(--shadow-card)'
               }}
-              onClick={() => {
-                // first click: flip to show description; second click: open modal with service preselected
-                if (!flipped[service.id]) setFlipped(prev => ({ ...prev, [service.id]: true }));
-                else onBookingClick(service.id);
-              }}
+              onClick={() => onBookingClick(service.id)}
             >
-              {/* front */}
-              <div className={`relative h-56 sm:h-56 md:h-64 overflow-hidden transition-transform duration-500 [backface-visibility:hidden] ${flipped[service.id] ? 'rotate-y-180' : ''}`}>
+              <div className="relative h-56 sm:h-56 md:h-64 overflow-hidden">
                 <img 
                   src={service.image} 
                   alt={service.title}
@@ -102,11 +96,18 @@ const Services = ({ onBookingClick }: ServicesProps) => {
                   </div>
                 </div>
               </div>
-              {/* back */}
-              <div className={`absolute inset-0 p-5 sm:p-6 bg-background transition-transform duration-500 rotate-y-180 [backface-visibility:hidden] ${flipped[service.id] ? '' : 'rotate-y-0'}`}>
+              <div className="p-4">
                 <h3 className="text-lg sm:text-xl font-bold mb-2">{service.title}</h3>
                 <p className="text-muted-foreground text-sm sm:text-base mb-4">{service.description}</p>
-                <div className="small text-muted-foreground">Toque novamente para agendar</div>
+                <Button 
+                  className="w-full"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onBookingClick(service.id);
+                  }}
+                >
+                  Agendar Agora
+                </Button>
               </div>
             </div>
             ))
