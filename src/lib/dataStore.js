@@ -25,15 +25,17 @@ const normalizePhoneToE164BR = (phone) => {
 // Generic CRUD operations
 const createCRUD = (table, idField = 'id') => ({
   async getAll(barbershopId) {
+    console.log(`🔍 getAll ${table}:`, { barbershopId, host: window?.location?.host });
     try {
       const { data, error } = await supabase
         .from(table)
         .select('*')
         .eq('barbershop_id', barbershopId);
       if (error) throw error;
+      console.log(`✅ ${table} encontrados:`, data?.length || 0);
       return data || [];
     } catch (error) {
-      console.error(`Erro ao buscar ${table}:`, error);
+      console.error(`❌ Erro ao buscar ${table}:`, error);
       return [];
     }
   },

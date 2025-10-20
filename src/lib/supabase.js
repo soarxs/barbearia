@@ -6,7 +6,5 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 
 export const supabase = createClient(supabaseUrl, supabaseKey)
 
-// Configuração para desenvolvimento
-if (import.meta.env.DEV) {
-  console.log('🔗 Supabase conectado:', supabaseUrl)
-}
+// Log de conexão (sempre ativo para debug)
+console.log('🔗 Supabase conectado:', supabaseUrl, 'Host:', window?.location?.host)
