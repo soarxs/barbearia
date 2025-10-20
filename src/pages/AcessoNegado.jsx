@@ -23,7 +23,12 @@ function AcessoNegado() {
         <div className="card-body p-5">
           {/* Logo da Empresa */}
           <div className="mb-4">
-            <h2 className="text-blue mb-0">💈 BarberTime</h2>
+            <div className="d-flex align-items-center justify-content-center gap-2 mb-2">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full d-flex align-items-center justify-content-center shadow-lg">
+                <span className="text-white fs-5 fw-bold">💈</span>
+              </div>
+              <h2 className="text-blue mb-0">BarberTime</h2>
+            </div>
             <p className="text-muted">Sistema de Gestão</p>
           </div>
 

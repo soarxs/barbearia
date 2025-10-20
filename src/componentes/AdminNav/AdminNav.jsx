@@ -15,7 +15,9 @@ function AdminNav() {
     <nav className="navbar navbar-expand-lg admin-topnav">
       <div className="container">
         <a className="navbar-brand d-flex align-items-center gap-2" href="/">
-          <span role="img" aria-label="barber">💈</span>
+          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full flex items-center justify-center shadow-lg logo-blue">
+            <span className="text-white text-sm font-bold">💈</span>
+          </div>
           <strong>BarberTime Admin</strong>
         </a>
         <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNav" aria-controls="adminNav" aria-expanded="false" aria-label="Toggle navigation">

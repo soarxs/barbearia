@@ -9,7 +9,9 @@ const Footer = () => {
           {/* Logo & Description */}
           <div>
             <div className="flex items-center gap-2 mb-3 sm:mb-4">
-              <Scissors className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full flex items-center justify-center shadow-lg logo-blue">
+                <span className="text-white text-sm font-bold">💈</span>
+              </div>
               <span className="text-xl sm:text-2xl font-bold gradient-text">BarberTime</span>
             </div>
             <p className="text-sm sm:text-base text-muted-foreground">

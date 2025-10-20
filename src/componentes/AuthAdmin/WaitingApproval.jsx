@@ -41,6 +41,12 @@ function WaitingApproval() {
           <div className="card bg-dark border-warning">
             <div className="card-body p-5 text-center">
               <div className="mb-4">
+                <div className="d-flex align-items-center justify-content-center gap-2 mb-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full d-flex align-items-center justify-content-center shadow-lg">
+                    <span className="text-white fs-4 fw-bold">💈</span>
+                  </div>
+                  <h2 className="text-blue mb-0">BarberTime</h2>
+                </div>
                 <span className="display-1">⏳</span>
               </div>
               
