@@ -7,11 +7,17 @@ export const useTenant = () => {
   const host = window.location.host
   const isAdmin = window.location.pathname.startsWith('/admin')
   
+  // Debug log para verificar o host
+  console.log('🔍 useTenant Debug:', { host, isAdmin, barbeariaId })
+  
   return useQuery({
     queryKey: ['tenant', barbeariaId, host, isAdmin],
     queryFn: async () => {
+      console.log('🔍 useTenant queryFn:', { host, isAdmin, barbeariaId })
+      
       // Se estiver no admin, usar barbearia padrão
       if (isAdmin) {
+        console.log('🔍 Admin mode detected, using default barbershop')
         return {
           type: 'admin',
           barbershop: {
