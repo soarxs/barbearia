@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase';
 import { useBooking } from '@/hooks/useBooking.js';
 import { useTenant } from '@/hooks/useTenant.js';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ValidatedInput } from '@/components/ui/validated-input';
@@ -23,7 +24,7 @@ interface BookingModalProps {
   preSelectedServiceId?: string;
 }
 
-const BookingModal = ({ open, onOpenChange, preSelectedServiceId }: BookingModalProps) => {
+const BookingModal = React.memo(({ open, onOpenChange, preSelectedServiceId }: BookingModalProps) => {
   const { data: tenant } = useTenant();
   const {
     step, setStep,
@@ -376,6 +377,8 @@ const BookingModal = ({ open, onOpenChange, preSelectedServiceId }: BookingModal
       </DialogContent>
     </Dialog>
   );
-};
+});
+
+BookingModal.displayName = 'BookingModal';
 
 export default BookingModal;
