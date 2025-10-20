@@ -116,9 +116,45 @@ export const addService = (service, barbershopId) => servicesCRUD.create(service
 export const updateService = (id, service, barbershopId) => servicesCRUD.update(id, service, barbershopId);
 export const deleteService = (id, barbershopId) => servicesCRUD.delete(id, barbershopId);
 
-export const addBarber = (barber, barbershopId) => barbersCRUD.create(barber, barbershopId);
+export const addBarber = async (barber, barbershopId) => {
+  const newBarber = await barbersCRUD.create(barber, barbershopId);
+  
+  // Criar horários padrão para o novo barbeiro
+  if (newBarber) {
+    try {
+      await setBarberSchedule(barbershopId, newBarber.id, {
+        monday: { isWorking: true, startTime: '08:00', endTime: '18:00', lunchStart: '12:00', lunchEnd: '13:00', stepMinutes: 60 },
+        tuesday: { isWorking: true, startTime: '08:00', endTime: '18:00', lunchStart: '12:00', lunchEnd: '13:00', stepMinutes: 60 },
+        wednesday: { isWorking: true, startTime: '08:00', endTime: '18:00', lunchStart: '12:00', lunchEnd: '13:00', stepMinutes: 60 },
+        thursday: { isWorking: true, startTime: '08:00', endTime: '18:00', lunchStart: '12:00', lunchEnd: '13:00', stepMinutes: 60 },
+        friday: { isWorking: true, startTime: '08:00', endTime: '18:00', lunchStart: '12:00', lunchEnd: '13:00', stepMinutes: 60 },
+        saturday: { isWorking: true, startTime: '08:00', endTime: '18:00', lunchStart: '12:00', lunchEnd: '13:00', stepMinutes: 60 },
+        sunday: { isWorking: false, startTime: '08:00', endTime: '18:00', lunchStart: '12:00', lunchEnd: '13:00', stepMinutes: 60 }
+      });
+    } catch (error) {
+      console.warn('Erro ao criar horários padrão para o barbeiro:', error);
+    }
+  }
+  
+  return newBarber;
+};
+
 export const updateBarber = (id, barber, barbershopId) => barbersCRUD.update(id, barber, barbershopId);
-export const deleteBarber = (id, barbershopId) => barbersCRUD.delete(id, barbershopId);
+
+export const deleteBarber = async (id, barbershopId) => {
+  // Remover horários do barbeiro antes de deletar
+  try {
+    await supabase
+      .from('barber_schedules')
+      .delete()
+      .eq('barbershop_id', barbershopId)
+      .eq('barber_id', id);
+  } catch (error) {
+    console.warn('Erro ao remover horários do barbeiro:', error);
+  }
+  
+  return barbersCRUD.delete(id, barbershopId);
+};
 
 export const addAppointment = async (appointment, barbershopId) => {
   const appointmentData = {
@@ -310,6 +346,43 @@ export const getAllBarberSchedules = async (barbershopId) => {
   } catch (error) {
     console.error('Erro ao buscar horários dos barbeiros:', error);
     return [];
+  }
+};
+
+// Função para garantir que todos os barbeiros tenham horários
+export const ensureBarberSchedules = async (barbershopId) => {
+  try {
+    const barbers = await getBarbers(barbershopId);
+    const schedules = await getAllBarberSchedules(barbershopId);
+    
+    const barberIds = barbers.map(b => b.id);
+    const scheduleBarberIds = schedules.map(s => s.barber_id);
+    
+    // Encontrar barbeiros sem horários
+    const barbersWithoutSchedules = barberIds.filter(id => !scheduleBarberIds.includes(id));
+    
+    // Criar horários padrão para barbeiros sem horários
+    for (const barberId of barbersWithoutSchedules) {
+      try {
+        await setBarberSchedule(barbershopId, barberId, {
+          monday: { isWorking: true, startTime: '08:00', endTime: '18:00', lunchStart: '12:00', lunchEnd: '13:00', stepMinutes: 60 },
+          tuesday: { isWorking: true, startTime: '08:00', endTime: '18:00', lunchStart: '12:00', lunchEnd: '13:00', stepMinutes: 60 },
+          wednesday: { isWorking: true, startTime: '08:00', endTime: '18:00', lunchStart: '12:00', lunchEnd: '13:00', stepMinutes: 60 },
+          thursday: { isWorking: true, startTime: '08:00', endTime: '18:00', lunchStart: '12:00', lunchEnd: '13:00', stepMinutes: 60 },
+          friday: { isWorking: true, startTime: '08:00', endTime: '18:00', lunchStart: '12:00', lunchEnd: '13:00', stepMinutes: 60 },
+          saturday: { isWorking: true, startTime: '08:00', endTime: '18:00', lunchStart: '12:00', lunchEnd: '13:00', stepMinutes: 60 },
+          sunday: { isWorking: false, startTime: '08:00', endTime: '18:00', lunchStart: '12:00', lunchEnd: '13:00', stepMinutes: 60 }
+        });
+        console.log(`Horários padrão criados para barbeiro ${barberId}`);
+      } catch (error) {
+        console.error(`Erro ao criar horários para barbeiro ${barberId}:`, error);
+      }
+    }
+    
+    return barbersWithoutSchedules.length;
+  } catch (error) {
+    console.error('Erro ao garantir horários dos barbeiros:', error);
+    return 0;
   }
 };
 

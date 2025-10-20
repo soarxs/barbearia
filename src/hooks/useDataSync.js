@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
-import { getBarbers, getServices, getAllBarberSchedules, getAppointments, addAppointment, updateAppointment, removeAppointment, generateTimeSlotsForBarber } from '@/lib/dataStore';
+import { getBarbers, getServices, getAllBarberSchedules, getAppointments, addAppointment, updateAppointment, removeAppointment, generateTimeSlotsForBarber, ensureBarberSchedules } from '@/lib/dataStore';
 
 export function useDataSync(barbershopId) {
   const [barbers, setBarbers] = useState([]);
@@ -26,12 +26,17 @@ export function useDataSync(barbershopId) {
       setError(null);
       
       // Carregar dados em paralelo
-      const [barbersData, servicesData, schedulesData, appointmentsData] = await Promise.all([
+      const [barbersData, servicesData, appointmentsData] = await Promise.all([
         getBarbers(barbershopId),
         getServices(barbershopId),
-        getAllBarberSchedules(barbershopId),
         getAppointments(barbershopId)
       ]);
+      
+      // Garantir que todos os barbeiros tenham horários
+      await ensureBarberSchedules(barbershopId);
+      
+      // Carregar horários após garantir que existem
+      const schedulesData = await getAllBarberSchedules(barbershopId);
       
       setBarbers(barbersData || []);
       setServices(servicesData || []);
