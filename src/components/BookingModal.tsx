@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { generateTimeSlotsFor, generateTimeSlotsForBarber } from '@/lib/dataStore.js';
 import { supabase } from '@/lib/supabase';
 import { useBooking } from '@/hooks/useBooking.js';
+import { useTenant } from '@/hooks/useTenant.js';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,11 +24,12 @@ interface BookingModalProps {
 }
 
 const BookingModal = ({ open, onOpenChange, preSelectedServiceId }: BookingModalProps) => {
+  const { data: tenant } = useTenant();
   const {
     step, setStep,
     selectedService, selectedBarber, selectedDate, selectedTime,
     name, setName, phone, setPhone,
-    times, takenTimes,
+    times, setTimes, takenTimes,
     barbers, services,
     errors, touched, isFieldValid, isFieldInvalid,
     handleServiceSelect, handleBarberSelect, handleConfirm,
@@ -69,7 +71,7 @@ const BookingModal = ({ open, onOpenChange, preSelectedServiceId }: BookingModal
     };
     
     loadTimeSlots();
-  }, [selectedDate, selectedBarber, tenant, schedules]);
+  }, [selectedDate, selectedBarber, tenant]);
 
   // Verificar horários ocupados quando barbeiro e data forem selecionados
   useEffect(() => {
