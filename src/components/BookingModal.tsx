@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { generateTimeSlotsFor, generateTimeSlotsForBarber } from '@/lib/dataStore.js';
+import { generateTimeSlotsFor, generateTimeSlotsForBarber, formatLocalDateKey } from '@/lib/dataStore.js';
 import { supabase } from '@/lib/supabase';
 import { useBooking } from '@/hooks/useBooking.js';
 import { useTenant } from '@/hooks/useTenant.js';
@@ -12,11 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Calendar } from '@/components/ui/calendar';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import InputMask from 'react-input-mask';
-import { formatLocalDateKey } from '@/lib/dataStore.js';
 import { STEP_TITLES, STEP_DESCRIPTIONS } from '@/lib/constants.js';
-import haircutImage from '@/assets/service-haircut.jpg';
-import beardImage from '@/assets/service-beard.jpg';
-import comboImage from '@/assets/service-combo.jpg';
 
 interface BookingModalProps {
   open: boolean;
@@ -38,7 +34,6 @@ const BookingModal = React.memo(({ open, onOpenChange, preSelectedServiceId }: B
     resetForm
   } = useBooking(preSelectedServiceId, open);
 
-  // Reset form when modal opens/closes
   useEffect(() => {
     if (open && preSelectedServiceId) {
       setSelectedService(preSelectedServiceId);
@@ -51,43 +46,31 @@ const BookingModal = React.memo(({ open, onOpenChange, preSelectedServiceId }: B
     }
   }, [open, preSelectedServiceId]);
 
-  // Carregar horários disponíveis quando a data e barbeiro forem selecionados
   useEffect(() => {
     const loadTimeSlots = async () => {
       if (selectedDate && tenant?.barbershop?.id) {
         try {
-          let slots;
-          if (selectedBarber) {
-            // Usar horários específicos do barbeiro
-            slots = await generateTimeSlotsForBarber(selectedDate, tenant.barbershop.id, selectedBarber);
-          } else {
-            // Usar horários gerais
-            slots = await generateTimeSlotsFor(selectedDate, tenant.barbershop.id);
-          }
+          const slots = selectedBarber 
+            ? await generateTimeSlotsForBarber(selectedDate, tenant.barbershop.id, selectedBarber)
+            : await generateTimeSlotsFor(selectedDate, tenant.barbershop.id);
           setTimes(slots);
         } catch (error) {
-          console.error('Erro ao carregar horários:', error);
+          // Silent fail
         }
       }
     };
-    
     loadTimeSlots();
   }, [selectedDate, selectedBarber, tenant]);
 
-  // Verificar horários ocupados quando barbeiro e data forem selecionados
   useEffect(() => {
     const checkTakenTimes = async () => {
       if (selectedDate && selectedBarber && tenant?.barbershop?.id && times.length > 0) {
-        // Validar se selectedBarber é um ID válido (não é o mesmo que barbershopId)
         if (selectedBarber === tenant.barbershop.id) {
-          console.warn('selectedBarber is same as barbershopId, skipping taken times check');
           setTakenTimes(new Set());
           return;
         }
         
         const taken = new Set<string>();
-        
-        // Fazer uma única consulta para buscar todos os agendamentos do dia
         try {
           const formattedDate = formatLocalDateKey(selectedDate);
           if (!formattedDate) {
@@ -104,20 +87,15 @@ const BookingModal = React.memo(({ open, onOpenChange, preSelectedServiceId }: B
             .eq('status', 'confirmado');
           
           if (error) {
-            console.error('Erro ao buscar agendamentos:', error);
             setTakenTimes(new Set());
             return;
           }
           
-          // Marcar horários ocupados
           if (data) {
-            data.forEach(appointment => {
-              taken.add(appointment.time);
-            });
+            data.forEach(appointment => taken.add(appointment.time));
           }
-          
         } catch (error) {
-          console.error('Erro ao verificar horários ocupados:', error);
+          // Silent fail
         }
         
         setTakenTimes(taken);

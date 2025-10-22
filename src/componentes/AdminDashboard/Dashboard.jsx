@@ -1,10 +1,9 @@
 import React, { useMemo } from 'react';
 import './Dashboard.css';
-import { toast } from 'sonner';
 
 const getWeekDays = () => {
   const today = new Date();
-  const day = (today.getDay() + 6) % 7; // Monday=0
+  const day = (today.getDay() + 6) % 7;
   const start = new Date(today);
   start.setDate(today.getDate() - day);
   start.setHours(0,0,0,0);
@@ -21,7 +20,6 @@ function Dashboard({ onGo }) {
     const list = JSON.parse(localStorage.getItem('bt_services') || '[]');
     const map = {};
     list.forEach(s => map[s.id] = Number(s.price) || 0);
-    // defaults
     if (!map.corte) map.corte = 40; if (!map.barba) map.barba = 30; if (!map.combo) map.combo = 65;
     return map;
   }, []);
@@ -33,11 +31,10 @@ function Dashboard({ onGo }) {
       const items = appts.filter(a => a.date === key);
       return { date: d, count: items.length };
     });
-    const flat = appts;
-    const totalCuts = flat.filter(i => i.service === 'corte').length;
-    const totalBeards = flat.filter(i => i.service === 'barba').length;
-    const totalCombos = flat.filter(i => i.service === 'combo').length;
-    const revenue = flat.reduce((acc, cur) => acc + (servicesMap[cur.service] || 0), 0);
+    const totalCuts = appts.filter(i => i.service === 'corte').length;
+    const totalBeards = appts.filter(i => i.service === 'barba').length;
+    const totalCombos = appts.filter(i => i.service === 'combo').length;
+    const revenue = appts.reduce((acc, cur) => acc + (servicesMap[cur.service] || 0), 0);
     const dailyAvg = Math.round(revenue / 7);
     return { totalCuts, totalBeards, totalCombos, revenue, dailyAvg, perDay };
   }, [weekDays, servicesMap]);

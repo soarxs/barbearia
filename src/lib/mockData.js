@@ -1,9 +1,4 @@
-// Dados mock consolidados
-export const mockBarbershop = {
-  id: 'default-barbershop',
-  name: 'Barbearia Admin',
-  slug: 'admin'
-};
+export const mockBarbershop = { id: 'default-barbershop', name: 'Barbearia Admin', slug: 'admin' };
 
 export const mockServices = [
   { id: 'corte', name: 'Corte de Cabelo', price: 40.00, duration_minutes: 30, is_active: true },
@@ -18,35 +13,8 @@ export const mockBarbers = [
 ];
 
 export const mockAppointments = [
-  {
-    id: 'apt-1',
-    date: '2024-01-15',
-    time: '09:00',
-    service_id: 'corte',
-    barber_id: 'joao',
-    client_name: 'João Cliente',
-    client_phone: '+5511999999999',
-    status: 'pendente',
-    notes: 'Primeira vez'
-  },
-  {
-    id: 'apt-2',
-    date: '2024-01-15',
-    time: '10:30',
-    service_id: 'barba',
-    barber_id: 'carlos',
-    client_name: 'Maria Cliente',
-    client_phone: '+5511888888888',
-    status: 'confirmado',
-    notes: 'Cliente regular'
-  }
+  { id: 'apt-1', date: '2024-01-15', time: '09:00', service_id: 'corte', barber_id: 'joao', client_name: 'João Cliente', client_phone: '+5511999999999', status: 'pendente', notes: 'Primeira vez' },
+  { id: 'apt-2', date: '2024-01-15', time: '10:30', service_id: 'barba', barber_id: 'carlos', client_name: 'Maria Cliente', client_phone: '+5511888888888', status: 'confirmado', notes: 'Cliente regular' }
 ];
 
-export const mockSchedule = {
-  workingDays: [1, 2, 3, 4, 5, 6], // Segunda a Sábado
-  open: '08:00',
-  close: '18:00',
-  lunchStart: '12:00',
-  lunchEnd: '13:00',
-  stepMinutes: 30
-};
+export const mockSchedule = { workingDays: [1, 2, 3, 4, 5, 6], open: '08:00', close: '18:00', lunchStart: '12:00', lunchEnd: '13:00', stepMinutes: 30 };

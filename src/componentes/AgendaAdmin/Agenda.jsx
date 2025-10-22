@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { useTenant } from '../../hooks/useTenant';
-import { getAppointments, addAppointment, updateAppointment, removeAppointment, getServices, getBarbers, getSchedule, isTimeTaken, generateTimeSlotsForBarber, getAllBarberSchedules } from '../../lib/dataStore';
+import { getAppointments, addAppointment, updateAppointment, removeAppointment, getServices, getBarbers, getSchedule, generateTimeSlotsForBarber, getAllBarberSchedules } from '../../lib/dataStore';
 import DatePicker from 'react-datepicker';
 import InputMask from 'react-input-mask';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -13,7 +13,6 @@ export default function Agenda() {
   const [schedule, setSchedule] = useState({});
   const [loading, setLoading] = useState(true);
   
-  // Estados consolidados
   const [state, setState] = useState({
     selectedDate: new Date(),
     selectedBarber: '',
@@ -30,11 +29,8 @@ export default function Agenda() {
   });
 
   const [barberSchedules, setBarberSchedules] = useState({});
-
-  // Função para atualizar estado
   const updateState = (updates) => setState(prev => ({ ...prev, ...updates }));
 
-  // Carregar dados iniciais
   useEffect(() => {
     const loadData = async () => {
       if (!tenant?.barbershop?.id) return;
@@ -53,7 +49,6 @@ export default function Agenda() {
         setBarbers(barbersData || []);
         setSchedule(scheduleData || {});
         
-        // Definir valores padrão
         if (servicesData?.length > 0 && !state.pickService) {
           updateState({ pickService: servicesData[0].id });
         }
@@ -61,7 +56,7 @@ export default function Agenda() {
           updateState({ pickBarber: barbersData[0].id });
         }
       } catch (error) {
-        console.error('Erro ao carregar dados:', error);
+        // Silent fail
       } finally {
         setLoading(false);
       }
@@ -70,7 +65,6 @@ export default function Agenda() {
     loadData();
   }, [tenant?.barbershop?.id]);
 
-  // Carregar horários dos barbeiros
   useEffect(() => {
     const loadBarberData = async () => {
       if (!tenant?.barbershop?.id || !barbers.length) return;
@@ -83,7 +77,7 @@ export default function Agenda() {
         });
         setBarberSchedules(schedulesMap);
       } catch (error) {
-        console.error('Erro ao carregar horários dos barbeiros:', error);
+        // Silent fail
       }
     };
     
@@ -98,7 +92,6 @@ export default function Agenda() {
     return appointments.filter(apt => apt.date === dateStr);
   }, [appointments, state.selectedDate]);
 
-  // Gerar horários disponíveis
   const barberTimeSlots = useMemo(() => {
     const slots = {};
     barbers.forEach(barber => {
@@ -110,7 +103,6 @@ export default function Agenda() {
     return slots;
   }, [barbers, state.selectedDate, tenant?.barbershop?.id]);
 
-  // Funções de manipulação
   const handleAddAppointment = async () => {
     if (!state.pickDate || !state.pickTime || !state.pickBarber || !state.pickService || !state.pickClient || !state.pickPhone) {
       alert('Preencha todos os campos obrigatórios');
@@ -131,11 +123,9 @@ export default function Agenda() {
 
       await addAppointment(appointmentData, tenant.barbershop.id);
       
-      // Recarregar dados
       const updatedAppointments = await getAppointments(tenant.barbershop.id);
       setAppointments(updatedAppointments || []);
       
-      // Limpar formulário
       updateState({
         pickDate: new Date(),
         pickTime: '',
@@ -147,7 +137,6 @@ export default function Agenda() {
       setShowAddModal(false);
       alert('Agendamento adicionado com sucesso!');
     } catch (error) {
-      console.error('Erro ao adicionar agendamento:', error);
       alert('Erro ao adicionar agendamento');
     }
   };
@@ -158,7 +147,6 @@ export default function Agenda() {
       const updatedAppointments = await getAppointments(tenant.barbershop.id);
       setAppointments(updatedAppointments || []);
     } catch (error) {
-      console.error('Erro ao atualizar agendamento:', error);
       alert('Erro ao atualizar agendamento');
     }
   };
@@ -171,17 +159,7 @@ export default function Agenda() {
       const updatedAppointments = await getAppointments(tenant.barbershop.id);
       setAppointments(updatedAppointments || []);
     } catch (error) {
-      console.error('Erro ao remover agendamento:', error);
       alert('Erro ao remover agendamento');
-    }
-  };
-
-  const isSlotTaken = async (time, barberId) => {
-    try {
-      return await isTimeTaken(state.selectedDate, time, barberId, tenant.barbershop.id);
-    } catch (error) {
-      console.error('Erro ao verificar horário:', error);
-      return false;
     }
   };
 
