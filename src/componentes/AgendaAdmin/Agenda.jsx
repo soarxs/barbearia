@@ -1,9 +1,14 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { useTenant } from '../../hooks/useTenant';
 import { getAppointments, addAppointment, updateAppointment, removeAppointment, getServices, getBarbers, getSchedule, generateTimeSlotsForBarber, getAllBarberSchedules } from '../../lib/dataStore';
-import DatePicker from 'react-datepicker';
-import InputMask from 'react-input-mask';
-import 'react-datepicker/dist/react-datepicker.css';
+// Função para aplicar máscara de telefone
+const formatPhone = (value) => {
+  const numbers = value.replace(/\D/g, '');
+  if (numbers.length <= 10) {
+    return numbers.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+  }
+  return numbers.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+};
 
 export default function Agenda() {
   const { data: tenant } = useTenant();
@@ -191,11 +196,11 @@ export default function Agenda() {
           <div className="row mb-4">
             <div className="col-md-6">
               <label className="form-label">Data</label>
-              <DatePicker
-                selected={state.selectedDate}
-                onChange={(date) => updateState({ selectedDate: date })}
+              <input
+                type="date"
+                value={state.selectedDate.toISOString().split('T')[0]}
+                onChange={(e) => updateState({ selectedDate: new Date(e.target.value) })}
                 className="form-control"
-                dateFormat="dd/MM/yyyy"
               />
             </div>
             <div className="col-md-6">
@@ -274,11 +279,11 @@ export default function Agenda() {
                 <div className="row">
                   <div className="col-md-6 mb-3">
                     <label className="form-label">Data</label>
-                    <DatePicker
-                      selected={state.pickDate}
-                      onChange={(date) => updateState({ pickDate: date })}
+                    <input
+                      type="date"
+                      value={state.pickDate.toISOString().split('T')[0]}
+                      onChange={(e) => updateState({ pickDate: new Date(e.target.value) })}
                       className="form-control"
-                      dateFormat="dd/MM/yyyy"
                     />
                   </div>
                   <div className="col-md-6 mb-3">
@@ -327,13 +332,13 @@ export default function Agenda() {
                   </div>
                   <div className="col-md-6 mb-3">
                     <label className="form-label">Telefone</label>
-                    <InputMask
-                      mask="(99) 99999-9999"
+                    <input
+                      type="text"
                       value={state.pickPhone}
-                      onChange={(e) => updateState({ pickPhone: e.target.value })}
-                    >
-                      {(inputProps) => <input {...inputProps} className="form-control" />}
-                    </InputMask>
+                      onChange={(e) => updateState({ pickPhone: formatPhone(e.target.value) })}
+                      className="form-control"
+                      placeholder="(11) 99999-9999"
+                    />
                   </div>
                   <div className="col-12 mb-3">
                     <label className="form-label">Observações</label>

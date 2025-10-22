@@ -11,7 +11,14 @@ import { ValidatedInput } from '@/components/ui/validated-input';
 import { Label } from '@/components/ui/label';
 import { Calendar } from '@/components/ui/calendar';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import InputMask from 'react-input-mask';
+// Função para aplicar máscara de telefone
+const formatPhone = (value: string) => {
+  const numbers = value.replace(/\D/g, '');
+  if (numbers.length <= 10) {
+    return numbers.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+  }
+  return numbers.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+};
 import { STEP_TITLES, STEP_DESCRIPTIONS } from '@/lib/constants.js';
 
 interface BookingModalProps {
@@ -289,31 +296,24 @@ const BookingModal = React.memo(({ open, onOpenChange, preSelectedServiceId }: B
 
               <div>
                 <Label htmlFor="phone">Telefone *</Label>
-                <InputMask
-                  mask="(99) 99999-9999"
+                <Input
+                  id="phone"
                   value={phone}
                   onChange={(e) => {
-                    setPhone(e.target.value);
-                    handleChange('phone', e.target.value);
+                    const formatted = formatPhone(e.target.value);
+                    setPhone(formatted);
+                    handleChange('phone', formatted);
                   }}
                   onBlur={(e) => handleBlur('phone', e.target.value)}
-                >
-                  {/* @ts-ignore */}
-                  {(inputProps) => (
-                    <Input
-                      {...inputProps}
-                      id="phone"
-                      placeholder="(11) 99999-9999"
-                      className={`mt-2 transition-all duration-200 ${
-                        touched.phone && isFieldInvalid('phone') 
-                          ? 'border-destructive focus:border-destructive focus:ring-destructive/20' 
-                          : touched.phone && isFieldValid('phone')
-                          ? 'border-green-500 focus:border-green-500 focus:ring-green-500/20'
-                          : ''
-                      }`}
-                    />
-                  )}
-                </InputMask>
+                  placeholder="(11) 99999-9999"
+                  className={`mt-2 transition-all duration-200 ${
+                    touched.phone && isFieldInvalid('phone') 
+                      ? 'border-destructive focus:border-destructive focus:ring-destructive/20' 
+                      : touched.phone && isFieldValid('phone')
+                      ? 'border-green-500 focus:border-green-500 focus:ring-green-500/20'
+                      : ''
+                  }`}
+                />
                 {touched.phone && errors.phone && (
                   <p className="text-sm text-destructive mt-1 animate-slide-up">
                     {errors.phone}
