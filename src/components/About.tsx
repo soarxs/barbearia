@@ -1,4 +1,3 @@
-import aboutImage from '@/assets/about-shop.jpg';
 
 const About = () => {
   return (
@@ -38,7 +37,7 @@ const About = () => {
           <div className="animate-slide-up">
             <div className="relative rounded-lg overflow-hidden" style={{ boxShadow: 'var(--shadow-card)' }}>
               <img 
-                src={aboutImage} 
+                src="https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=1200" 
                 alt="Interior da barbearia BarberTime"
                 className="w-full h-auto"
               />

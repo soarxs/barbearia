@@ -1,5 +1,4 @@
 import { Button } from '@/components/ui/button';
-import heroImage from '@/assets/hero-barber.jpg';
 
 interface HeroProps {
   onBookingClick: () => void;
@@ -11,7 +10,7 @@ const Hero = ({ onBookingClick }: HeroProps) => {
       id="inicio"
       className="relative min-h-screen flex items-center justify-center overflow-hidden"
       style={{
-        backgroundImage: `url(${heroImage})`,
+        backgroundImage: `url('https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=1200')`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}

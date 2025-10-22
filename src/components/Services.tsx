@@ -3,9 +3,9 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getServices } from '@/lib/dataStore.js';
 import { useTenant } from '@/hooks/useTenant.js';
-import haircutImage from '@/assets/service-haircut.jpg';
-import beardImage from '@/assets/service-beard.jpg';
-import comboImage from '@/assets/service-combo.jpg';
+const haircutImage = 'https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=800';
+const beardImage = 'https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=800';
+const comboImage = 'https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=800';
 
 interface ServicesProps {
   onBookingClick: (serviceId: string) => void;
