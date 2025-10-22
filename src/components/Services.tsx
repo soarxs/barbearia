@@ -33,7 +33,6 @@ const Services = ({ onBookingClick }: ServicesProps) => {
           }));
           setServices(mapped);
         } catch (error) {
-          console.error('Erro ao carregar serviços:', error);
           setServices([]);
         } finally {
           setLoading(false);

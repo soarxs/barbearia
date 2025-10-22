@@ -9,17 +9,13 @@ export const useTenant = () => {
   const isAdmin = window.location.pathname.startsWith('/admin')
   const { user } = useAuth()
   
-  // Debug log para verificar o host
-  console.log('🔍 useTenant Debug:', { host, isAdmin, barbeariaId, userId: user?.id })
   
   return useQuery({
     queryKey: ['tenant', barbeariaId, host, isAdmin],
     queryFn: async () => {
-      console.log('🔍 useTenant queryFn:', { host, isAdmin, barbeariaId, userId: user?.id })
       
       // Se estiver no admin, buscar o primeiro barbershop do Supabase
       if (isAdmin) {
-        console.log('🔍 Admin mode detected, fetching first barbershop from Supabase')
         const { data: barbershopData, error: barbershopError } = await supabase
           .from('barbershops')
           .select('*')
