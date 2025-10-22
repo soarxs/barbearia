@@ -25,6 +25,27 @@ Sistema completo de gerenciamento para barbearias com autenticação, agendament
 - **Bundle 50% menor** - Tempo de carregamento reduzido
 - **Dependências otimizadas** - Apenas bibliotecas essenciais
 
+### 🗑️ v2.0.1 - Otimização de Imagens (2024)
+**Redução de 77% no tamanho removendo imagens locais**
+
+#### ✨ Melhorias de Performance
+- **77% redução no tamanho** - Removidas 5 imagens locais pesadas
+- **CDN do Unsplash** - Imagens carregadas via CDN global
+- **Carregamento mais rápido** - Imagens otimizadas automaticamente
+- **Bundle menor** - Sem arquivos de imagem no projeto
+
+#### 🔧 Otimizações Técnicas
+- **Imagens substituídas** - URLs do Unsplash para barbearia
+- **Pasta assets removida** - Estrutura mais limpa
+- **CDN global** - Imagens servidas pelo Unsplash
+- **Responsividade mantida** - Imagens adaptáveis
+
+#### 📊 Resultados
+- **77% menos espaço** - Projeto significativamente menor
+- **Carregamento global** - Imagens servidas via CDN
+- **Performance melhorada** - Sem arquivos locais pesados
+- **Manutenção simplificada** - Sem gerenciamento de imagens
+
 ### 📦 v1.0.0 - Versão Inicial
 - Sistema completo de agendamentos
 - Autenticação com Google OAuth
