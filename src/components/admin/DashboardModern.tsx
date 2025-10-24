@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -16,48 +16,111 @@ import {
   Phone,
   Settings
 } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
 const DashboardModern = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('today');
+  const [stats, setStats] = useState({
+    totalClients: 0,
+    todayAppointments: 0,
+    monthlyRevenue: 0,
+    averageRating: 0,
+    pendingAppointments: 0,
+    confirmedAppointments: 0,
+    completedAppointments: 0,
+    cancelledAppointments: 0
+  });
+  const [recentAppointments, setRecentAppointments] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Mock data
-  const stats = {
-    totalClients: 1247,
-    todayAppointments: 23,
-    monthlyRevenue: 15420,
-    averageRating: 4.8,
-    pendingAppointments: 8,
-    confirmedAppointments: 15,
-    completedAppointments: 12,
-    cancelledAppointments: 2
-  };
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
 
-  const recentAppointments = [
-    {
-      id: '1',
-      clientName: 'João Silva',
-      service: 'Corte + Barba',
-      time: '14:00',
-      status: 'confirmed',
-      barber: 'Carlos'
-    },
-    {
-      id: '2',
-      clientName: 'Maria Santos',
-      service: 'Corte Feminino',
-      time: '15:30',
-      status: 'pending',
-      barber: 'Ana'
-    },
-    {
-      id: '3',
-      clientName: 'Pedro Costa',
-      service: 'Barba',
-      time: '16:00',
-      status: 'completed',
-      barber: 'Roberto'
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      
+      // Buscar agendamentos de hoje
+      const today = new Date().toISOString().split('T')[0];
+      const { data: todayAppointments, error: todayError } = await supabase
+        .from('appointments')
+        .select('*')
+        .eq('date', today);
+
+      if (todayError) throw todayError;
+
+      // Buscar todos os agendamentos para estatísticas
+      const { data: allAppointments, error: appointmentsError } = await supabase
+        .from('appointments')
+        .select('*');
+
+      if (appointmentsError) throw appointmentsError;
+
+      // Buscar clientes únicos
+      const { data: clients, error: clientsError } = await supabase
+        .from('appointments')
+        .select('client_name, client_phone')
+        .not('client_name', 'is', null);
+
+      if (clientsError) throw clientsError;
+
+      // Calcular estatísticas
+      const uniqueClients = new Set(clients?.map(c => c.client_phone) || []).size;
+      const todayCount = todayAppointments?.length || 0;
+      
+      // Calcular receita mensal (assumindo preços dos serviços)
+      const currentMonth = new Date().getMonth();
+      const currentYear = new Date().getFullYear();
+      const monthlyAppointments = allAppointments?.filter(apt => {
+        const aptDate = new Date(apt.date);
+        return aptDate.getMonth() === currentMonth && aptDate.getFullYear() === currentYear;
+      }) || [];
+
+      // Calcular receita (você pode ajustar os preços conforme sua tabela de serviços)
+      const monthlyRevenue = monthlyAppointments.reduce((total, apt) => {
+        // Assumindo preços padrão - ajuste conforme sua estrutura
+        const servicePrice = apt.service === 'Corte + Barba' ? 65 : 
+                           apt.service === 'Corte' ? 40 : 
+                           apt.service === 'Barba' ? 30 : 50;
+        return total + servicePrice;
+      }, 0);
+
+      // Contar por status
+      const pendingCount = allAppointments?.filter(apt => apt.status === 'pending').length || 0;
+      const confirmedCount = allAppointments?.filter(apt => apt.status === 'confirmed').length || 0;
+      const completedCount = allAppointments?.filter(apt => apt.status === 'completed').length || 0;
+      const cancelledCount = allAppointments?.filter(apt => apt.status === 'cancelled').length || 0;
+
+      setStats({
+        totalClients: uniqueClients,
+        todayAppointments: todayCount,
+        monthlyRevenue,
+        averageRating: 4.8, // Você pode implementar sistema de avaliações
+        pendingAppointments: pendingCount,
+        confirmedAppointments: confirmedCount,
+        completedAppointments: completedCount,
+        cancelledAppointments: cancelledCount
+      });
+
+      // Buscar agendamentos recentes
+      const { data: recent, error: recentError } = await supabase
+        .from('appointments')
+        .select('*')
+        .order('date', { ascending: true })
+        .order('time', { ascending: true })
+        .limit(5);
+
+      if (recentError) throw recentError;
+
+      setRecentAppointments(recent || []);
+
+    } catch (error) {
+      console.error('Erro ao buscar dados do dashboard:', error);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {

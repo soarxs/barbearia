@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -19,6 +19,7 @@ import {
   CheckCircle2,
   X
 } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
 interface ConfirmationRequest {
   id: string;
@@ -33,50 +34,51 @@ interface ConfirmationRequest {
   requestedAt: string;
 }
 
-const mockConfirmations: ConfirmationRequest[] = [
-  {
-    id: '1',
-    clientName: 'João Silva',
-    clientPhone: '+55 11 99999-9999',
-    service: 'Corte + Barba',
-    barber: 'Carlos',
-    date: '23/12/2024',
-    time: '14:00',
-    status: 'pending',
-    message: 'Cliente solicitou confirmação via WhatsApp',
-    requestedAt: '2024-12-23 10:30'
-  },
-  {
-    id: '2',
-    clientName: 'Maria Santos',
-    clientPhone: '+55 11 88888-8888',
-    service: 'Corte Feminino',
-    barber: 'Ana',
-    date: '23/12/2024',
-    time: '15:30',
-    status: 'confirmed',
-    message: 'Cliente confirmou presença',
-    requestedAt: '2024-12-23 09:15'
-  },
-  {
-    id: '3',
-    clientName: 'Pedro Costa',
-    clientPhone: '+55 11 77777-7777',
-    service: 'Barba',
-    barber: 'Roberto',
-    date: '24/12/2024',
-    time: '10:00',
-    status: 'cancelled',
-    message: 'Cliente cancelou o agendamento',
-    requestedAt: '2024-12-23 08:45'
-  }
-];
-
 const ConfirmationsModern = () => {
-  const [confirmations, setConfirmations] = useState<ConfirmationRequest[]>(mockConfirmations);
+  const [confirmations, setConfirmations] = useState<ConfirmationRequest[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedConfirmation, setSelectedConfirmation] = useState<ConfirmationRequest | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [customMessage, setCustomMessage] = useState('');
+
+  useEffect(() => {
+    fetchConfirmations();
+  }, []);
+
+  const fetchConfirmations = async () => {
+    try {
+      setLoading(true);
+      
+      // Buscar agendamentos que precisam de confirmação
+      const { data, error } = await supabase
+        .from('appointments')
+        .select('*')
+        .in('status', ['pending', 'confirmed', 'cancelled'])
+        .order('date', { ascending: true })
+        .order('time', { ascending: true });
+
+      if (error) throw error;
+
+      const formattedConfirmations = data?.map(apt => ({
+        id: apt.id,
+        clientName: apt.client_name,
+        clientPhone: apt.client_phone,
+        service: apt.service,
+        barber: apt.barber,
+        date: new Date(apt.date).toLocaleDateString('pt-BR'),
+        time: apt.time,
+        status: apt.status,
+        message: apt.notes || 'Aguardando confirmação',
+        requestedAt: apt.created_at || new Date().toISOString()
+      })) || [];
+
+      setConfirmations(formattedConfirmations);
+    } catch (error) {
+      console.error('Erro ao buscar confirmações:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -105,12 +107,24 @@ const ConfirmationsModern = () => {
     }
   };
 
-  const handleStatusChange = (confirmationId: string, newStatus: string) => {
-    setConfirmations(prev => prev.map(confirmation => 
-      confirmation.id === confirmationId 
-        ? { ...confirmation, status: newStatus as any }
-        : confirmation
-    ));
+  const handleStatusChange = async (confirmationId: string, newStatus: string) => {
+    try {
+      const { error } = await supabase
+        .from('appointments')
+        .update({ status: newStatus })
+        .eq('id', confirmationId);
+
+      if (error) throw error;
+
+      // Atualizar estado local
+      setConfirmations(prev => prev.map(confirmation => 
+        confirmation.id === confirmationId 
+          ? { ...confirmation, status: newStatus as any }
+          : confirmation
+      ));
+    } catch (error) {
+      console.error('Erro ao atualizar status:', error);
+    }
   };
 
   const sendWhatsAppMessage = (phone: string, message: string) => {

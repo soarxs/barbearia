@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -20,6 +20,7 @@ import {
   Filter,
   Search
 } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
 interface Appointment {
   id: string;
@@ -33,49 +34,11 @@ interface Appointment {
   notes?: string;
 }
 
-const mockAppointments: Appointment[] = [
-  {
-    id: '1',
-    clientName: 'João Silva',
-    clientPhone: '+55 11 99999-9999',
-    service: 'Corte + Barba',
-    barber: 'Carlos',
-    date: new Date(2024, 11, 23),
-    time: '14:00',
-    status: 'pending',
-    notes: 'Cliente preferencial'
-  },
-  {
-    id: '2',
-    clientName: 'Maria Santos',
-    clientPhone: '+55 11 88888-8888',
-    service: 'Corte Feminino',
-    barber: 'Ana',
-    date: new Date(2024, 11, 23),
-    time: '15:30',
-    status: 'confirmed',
-    notes: 'Primeira vez'
-  }
-];
-
-const services = [
-  'Corte Masculino',
-  'Corte Feminino', 
-  'Barba',
-  'Corte + Barba',
-  'Sobrancelha',
-  'Pigmentação'
-];
-
-const barbers = [
-  'Carlos',
-  'Ana',
-  'Roberto',
-  'Mariana'
-];
-
 const AgendaModern = () => {
-  const [appointments, setAppointments] = useState<Appointment[]>(mockAppointments);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [services, setServices] = useState<string[]>([]);
+  const [barbers, setBarbers] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -88,6 +51,81 @@ const AgendaModern = () => {
     time: '',
     notes: ''
   });
+
+  useEffect(() => {
+    fetchAppointments();
+    fetchServices();
+    fetchBarbers();
+  }, [selectedDate]);
+
+  const fetchAppointments = async () => {
+    try {
+      setLoading(true);
+      const selectedDateStr = selectedDate.toISOString().split('T')[0];
+      
+      const { data, error } = await supabase
+        .from('appointments')
+        .select('*')
+        .eq('date', selectedDateStr)
+        .order('time', { ascending: true });
+
+      if (error) throw error;
+
+      const formattedAppointments = data?.map(apt => ({
+        id: apt.id,
+        clientName: apt.client_name,
+        clientPhone: apt.client_phone,
+        service: apt.service,
+        barber: apt.barber,
+        date: new Date(apt.date),
+        time: apt.time,
+        status: apt.status,
+        notes: apt.notes
+      })) || [];
+
+      setAppointments(formattedAppointments);
+    } catch (error) {
+      console.error('Erro ao buscar agendamentos:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchServices = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('services')
+        .select('name')
+        .eq('is_active', true);
+
+      if (error) throw error;
+
+      const serviceNames = data?.map(s => s.name) || [];
+      setServices(serviceNames);
+    } catch (error) {
+      console.error('Erro ao buscar serviços:', error);
+      // Fallback para serviços padrão
+      setServices(['Corte Masculino', 'Corte Feminino', 'Barba', 'Corte + Barba']);
+    }
+  };
+
+  const fetchBarbers = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('barbers')
+        .select('name')
+        .eq('is_active', true);
+
+      if (error) throw error;
+
+      const barberNames = data?.map(b => b.name) || [];
+      setBarbers(barberNames);
+    } catch (error) {
+      console.error('Erro ao buscar barbeiros:', error);
+      // Fallback para barbeiros padrão
+      setBarbers(['Carlos', 'Ana', 'Roberto', 'Mariana']);
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -128,38 +166,62 @@ const AgendaModern = () => {
     return matchesSearch && matchesStatus && matchesDate;
   });
 
-  const handleStatusChange = (appointmentId: string, newStatus: string) => {
-    setAppointments(prev => prev.map(appointment => 
-      appointment.id === appointmentId 
-        ? { ...appointment, status: newStatus as any }
-        : appointment
-    ));
+  const handleStatusChange = async (appointmentId: string, newStatus: string) => {
+    try {
+      const { error } = await supabase
+        .from('appointments')
+        .update({ status: newStatus })
+        .eq('id', appointmentId);
+
+      if (error) throw error;
+
+      // Atualizar estado local
+      setAppointments(prev => prev.map(appointment => 
+        appointment.id === appointmentId 
+          ? { ...appointment, status: newStatus as any }
+          : appointment
+      ));
+    } catch (error) {
+      console.error('Erro ao atualizar status:', error);
+    }
   };
 
-  const handleAddAppointment = () => {
+  const handleAddAppointment = async () => {
     if (newAppointment.clientName && newAppointment.clientPhone && newAppointment.service && newAppointment.barber && newAppointment.time) {
-      const appointment: Appointment = {
-        id: Date.now().toString(),
-        clientName: newAppointment.clientName,
-        clientPhone: newAppointment.clientPhone,
-        service: newAppointment.service,
-        barber: newAppointment.barber,
-        date: selectedDate,
-        time: newAppointment.time,
-        status: 'pending',
-        notes: newAppointment.notes
-      };
-      
-      setAppointments(prev => [...prev, appointment]);
-      setNewAppointment({
-        clientName: '',
-        clientPhone: '',
-        service: '',
-        barber: '',
-        time: '',
-        notes: ''
-      });
-      setIsAddDialogOpen(false);
+      try {
+        const appointmentData = {
+          client_name: newAppointment.clientName,
+          client_phone: newAppointment.clientPhone,
+          service: newAppointment.service,
+          barber: newAppointment.barber,
+          date: selectedDate.toISOString().split('T')[0],
+          time: newAppointment.time,
+          status: 'pending',
+          notes: newAppointment.notes || null
+        };
+
+        const { data, error } = await supabase
+          .from('appointments')
+          .insert([appointmentData])
+          .select();
+
+        if (error) throw error;
+
+        // Recarregar agendamentos
+        await fetchAppointments();
+
+        setNewAppointment({
+          clientName: '',
+          clientPhone: '',
+          service: '',
+          barber: '',
+          time: '',
+          notes: ''
+        });
+        setIsAddDialogOpen(false);
+      } catch (error) {
+        console.error('Erro ao adicionar agendamento:', error);
+      }
     }
   };
 
