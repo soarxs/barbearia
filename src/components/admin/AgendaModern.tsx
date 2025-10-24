@@ -158,10 +158,10 @@ const AgendaModern = () => {
   };
 
   const filteredAppointments = appointments.filter(appointment => {
-    const matchesSearch = appointment.clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         appointment.clientPhone.includes(searchTerm);
+    const matchesSearch = (appointment.clientName?.toLowerCase().includes(searchTerm.toLowerCase()) || false) ||
+                         (appointment.clientPhone?.includes(searchTerm) || false);
     const matchesStatus = statusFilter === 'all' || appointment.status === statusFilter;
-    const matchesDate = appointment.date.toDateString() === selectedDate.toDateString();
+    const matchesDate = appointment.date?.toDateString() === selectedDate.toDateString();
     
     return matchesSearch && matchesStatus && matchesDate;
   });
@@ -397,7 +397,7 @@ const AgendaModern = () => {
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
                       <div className="flex items-center space-x-3 mb-2">
-                        <h3 className="font-semibold text-lg">{appointment.clientName}</h3>
+                        <h3 className="font-semibold text-lg">{appointment.clientName || 'Cliente'}</h3>
                         <Badge className={getStatusColor(appointment.status)}>
                           <span className="flex items-center space-x-1">
                             {getStatusIcon(appointment.status)}
@@ -417,10 +417,10 @@ const AgendaModern = () => {
                         </div>
                         <div className="flex items-center space-x-2">
                           <Phone className="w-4 h-4" />
-                          <span>{appointment.clientPhone}</span>
+                          <span>{appointment.clientPhone || 'N/A'}</span>
                         </div>
                         <div className="col-span-2">
-                          <span className="font-medium">Serviço:</span> {appointment.service}
+                          <span className="font-medium">Serviço:</span> {appointment.service || 'N/A'}
                         </div>
                         {appointment.notes && (
                           <div className="col-span-2">

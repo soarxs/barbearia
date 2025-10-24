@@ -312,13 +312,13 @@ const DashboardModern = () => {
                   <div className="flex-shrink-0">
                     <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
                       <span className="text-blue-600 font-semibold">
-                        {appointment.clientName.split(' ').map(n => n[0]).join('')}
+                        {appointment.clientName ? appointment.clientName.split(' ').map(n => n[0]).join('') : 'N/A'}
                       </span>
                     </div>
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900">{appointment.clientName}</h3>
-                    <p className="text-sm text-gray-600">{appointment.service} • {appointment.barber}</p>
+                    <h3 className="font-semibold text-gray-900">{appointment.clientName || 'Cliente'}</h3>
+                    <p className="text-sm text-gray-600">{appointment.service || 'Serviço'} • {appointment.barber || 'Barbeiro'}</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-4">

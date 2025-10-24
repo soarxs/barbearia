@@ -238,7 +238,7 @@ const ConfirmationsModern = () => {
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
                       <div className="flex items-center space-x-3 mb-2">
-                        <h3 className="font-semibold text-lg">{confirmation.clientName}</h3>
+                        <h3 className="font-semibold text-lg">{confirmation.clientName || 'Cliente'}</h3>
                         <Badge className={getStatusColor(confirmation.status)}>
                           <span className="flex items-center space-x-1">
                             {getStatusIcon(confirmation.status)}
