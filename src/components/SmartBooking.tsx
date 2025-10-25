@@ -289,8 +289,56 @@ const SmartBooking = ({ onClose, selectedService }: SmartBookingProps) => {
               </div>
             )}
 
-            {/* Passo 2: Dados Pessoais */}
+            {/* Passo 2: Escolher Data */}
             {step === 2 && (
+              <div className="space-y-4">
+                <h3 className="font-semibold">Escolha a Data</h3>
+                
+                <div>
+                  <Label htmlFor="date">Data *</Label>
+                  <Input
+                    id="date"
+                    type="date"
+                    value={formData.date}
+                    onChange={(e) => {
+                      setFormData({ ...formData, date: e.target.value, time: '' });
+                    }}
+                    min={getMinDate()}
+                    required
+                  />
+                </div>
+
+                {/* Mostrar horários disponíveis se data selecionada */}
+                {formData.date && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <h4 className="font-medium text-blue-900 mb-2">Horários Disponíveis:</h4>
+                    <p className="text-sm text-blue-800">
+                      {formData.date === new Date().toISOString().split('T')[0] 
+                        ? 'Hoje - apenas horários futuros disponíveis'
+                        : 'Todos os horários de funcionamento disponíveis'
+                      }
+                    </p>
+                  </div>
+                )}
+                
+                <div className="flex gap-2">
+                  <Button type="button" variant="outline" onClick={() => setStep(1)} className="flex-1">
+                    Voltar
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={() => setStep(3)}
+                    disabled={!formData.date}
+                    className="flex-1"
+                  >
+                    Continuar
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Passo 3: Dados Pessoais e Barbeiro */}
+            {step === 3 && (
               <div className="space-y-4">
                 <h3 className="font-semibold">Seus Dados</h3>
                 <div className="space-y-3">
@@ -321,6 +369,7 @@ const SmartBooking = ({ onClose, selectedService }: SmartBookingProps) => {
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     />
                   </div>
+                  
                   <div>
                     <Label htmlFor="barber">Barbeiro *</Label>
                     <select
@@ -340,12 +389,12 @@ const SmartBooking = ({ onClose, selectedService }: SmartBookingProps) => {
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <Button type="button" variant="outline" onClick={() => setStep(1)} className="flex-1">
+                  <Button type="button" variant="outline" onClick={() => setStep(2)} className="flex-1">
                     Voltar
                   </Button>
                   <Button
                     type="button"
-                    onClick={() => setStep(3)}
+                    onClick={() => setStep(4)}
                     disabled={!formData.name || !formData.phone || !formData.barber}
                     className="flex-1"
                   >
@@ -355,26 +404,11 @@ const SmartBooking = ({ onClose, selectedService }: SmartBookingProps) => {
               </div>
             )}
 
-            {/* Passo 3: Escolher Data e Horário */}
-            {step === 3 && (
+            {/* Passo 4: Escolher Horário */}
+            {step === 4 && (
               <div className="space-y-4">
-                <h3 className="font-semibold">Escolha Data e Horário</h3>
+                <h3 className="font-semibold">Escolha o Horário</h3>
                 
-                {/* Seleção de Data */}
-                <div>
-                  <Label htmlFor="date">Data *</Label>
-                  <Input
-                    id="date"
-                    type="date"
-                    value={formData.date}
-                    onChange={(e) => {
-                      setFormData({ ...formData, date: e.target.value, time: '' });
-                    }}
-                    min={getMinDate()}
-                    required
-                  />
-                </div>
-
                 {/* Lista de Horários Disponíveis */}
                 {formData.date && formData.service && formData.barber && (
                   <TimeSlotsList 
@@ -415,7 +449,7 @@ const SmartBooking = ({ onClose, selectedService }: SmartBookingProps) => {
                 )}
                 
                 <div className="flex gap-2">
-                  <Button type="button" variant="outline" onClick={() => setStep(2)} className="flex-1">
+                  <Button type="button" variant="outline" onClick={() => setStep(3)} className="flex-1">
                     Voltar
                   </Button>
                   <Button
