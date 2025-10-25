@@ -432,10 +432,10 @@ const SmartBooking = ({ onClose, selectedService }: SmartBookingProps) => {
                       <div className="flex items-center gap-2">
                         <Calendar className="w-4 h-4" />
                         <span>
-                          {new Date(formData.date).toLocaleDateString('pt-BR', { 
+                          {new Date(formData.date + 'T00:00:00').toLocaleDateString('pt-BR', { 
                             weekday: 'long', 
                             day: '2-digit', 
-                            month: '2-digit',
+                            month: 'long',
                             year: 'numeric'
                           })}
                         </span>

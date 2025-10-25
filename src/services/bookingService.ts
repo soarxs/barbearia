@@ -80,7 +80,7 @@ export const bookingService = {
     try {
       const serviceDuration = SERVICE_DURATIONS[service] || 30;
       const slots: string[] = [];
-      const now = new Date();
+      const now = this.getCurrentDateTimeMontesClaros();
       const selectedDate = new Date(date);
       const isToday = selectedDate.toDateString() === now.toDateString();
       
@@ -91,10 +91,10 @@ export const bookingService = {
       const minHour = isToday ? currentHour + 1 : BUSINESS_CONFIG.startHour;
       
       // Debug: Log do horário atual
-      console.log('🕐 Debug Agendamento:');
+      console.log('🕐 Debug Agendamento (Montes Claros):');
       console.log('Data selecionada:', date);
       console.log('É hoje?', isToday);
-      console.log('Horário atual:', `${currentHour}:${currentMinute.toString().padStart(2, '0')}`);
+      console.log('Horário atual (Montes Claros):', `${currentHour}:${currentMinute.toString().padStart(2, '0')}`);
       console.log('Hora mínima permitida:', minHour);
       
       for (let hour = BUSINESS_CONFIG.startHour; hour < BUSINESS_CONFIG.endHour; hour++) {
@@ -207,16 +207,26 @@ export const bookingService = {
     }
   },
 
+  // Obter data/hora atual em Montes Claros (UTC-3)
+  getCurrentDateTimeMontesClaros(): Date {
+    const now = new Date();
+    // Montes Claros está no fuso UTC-3 (mesmo que Brasília)
+    const montesClarosOffset = -3 * 60; // -3 horas em minutos
+    const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+    const montesClarosTime = new Date(utc + (montesClarosOffset * 60000));
+    return montesClarosTime;
+  },
+
   // Verificar se a data está no futuro
   isDateValid(date: string): boolean {
-    const today = new Date();
-    const selectedDate = new Date(date);
-    return selectedDate >= today;
+    const today = this.getCurrentDateTimeMontesClaros();
+    const selectedDate = new Date(date + 'T00:00:00');
+    return selectedDate >= new Date(today.getFullYear(), today.getMonth(), today.getDate());
   },
 
   // Verificar se o horário está no futuro (para hoje)
   isTimeValid(date: string, time: string): boolean {
-    const now = new Date();
+    const now = this.getCurrentDateTimeMontesClaros();
     const selectedDate = new Date(date);
     const isToday = selectedDate.toDateString() === now.toDateString();
     
@@ -226,14 +236,28 @@ export const bookingService = {
     const currentHour = now.getHours();
     const currentMinute = now.getMinutes();
     
+    console.log('🕐 Validação de Horário (Montes Claros):');
+    console.log('Horário atual:', `${currentHour}:${currentMinute.toString().padStart(2, '0')}`);
+    console.log('Horário selecionado:', time);
+    
     // Se o horário selecionado já passou, não é válido
-    if (hours < currentHour) return false;
-    if (hours === currentHour && minutes <= currentMinute) return false;
+    if (hours < currentHour) {
+      console.log('❌ Horário passado (hora menor)');
+      return false;
+    }
+    if (hours === currentHour && minutes <= currentMinute) {
+      console.log('❌ Horário passado (minutos menores ou iguais)');
+      return false;
+    }
     
     // Adicionar margem de segurança de 1 hora
     const minHour = currentHour + 1;
-    if (hours < minHour) return false;
+    if (hours < minHour) {
+      console.log('❌ Horário muito próximo (menos de 1h)');
+      return false;
+    }
     
+    console.log('✅ Horário válido');
     return true;
   }
 };
