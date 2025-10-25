@@ -20,7 +20,7 @@ import {
   Filter,
   Search
 } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { appointmentService, serviceService, barberService } from '@/services/supabaseService';
 
 interface Appointment {
   id: string;

@@ -11,7 +11,7 @@ import {
   MessageSquare,
   Phone
 } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { statsService, appointmentService } from '@/services/supabaseService';
 
 const DashboardSimple = () => {
   const [stats, setStats] = useState({
@@ -31,59 +31,24 @@ const DashboardSimple = () => {
     try {
       setLoading(true);
       
-      // Buscar agendamentos de hoje
-      const today = new Date().toISOString().split('T')[0];
-      const { data: todayAppointments } = await supabase
-        .from('appointments')
-        .select('*')
-        .eq('date', today);
-
-      // Buscar todos os agendamentos
-      const { data: allAppointments } = await supabase
-        .from('appointments')
-        .select('*')
-        .order('date', { ascending: false });
-
-      // Clientes únicos
-      const uniqueClients = new Set(allAppointments?.map(apt => apt.client_phone) || []).size;
-      const todayCount = todayAppointments?.length || 0;
+      // Buscar estatísticas
+      const statsData = await statsService.getStats();
+      setStats(statsData);
       
-      // Receita mensal
-      const currentMonth = new Date().getMonth();
-      const currentYear = new Date().getFullYear();
-      const monthlyAppointments = allAppointments?.filter(apt => {
-        const aptDate = new Date(apt.date);
-        return aptDate.getMonth() === currentMonth && aptDate.getFullYear() === currentYear;
-      }) || [];
-
-      const servicePrices: { [key: string]: number } = {
-        'Corte': 25, 'Barba': 15, 'Corte + Barba': 35, 'Sobrancelha': 10, 'Pigmentação': 50
-      };
-
-      const monthlyRevenue = monthlyAppointments.reduce((total, apt) => {
-        const price = servicePrices[apt.service] || 25;
-        return total + (apt.status === 'confirmado' ? price : 0);
-      }, 0);
-
-      setStats({
-        totalClients: uniqueClients,
-        todayAppointments: todayCount,
-        monthlyRevenue,
-        totalAppointments: allAppointments?.length || 0
-      });
-
-      // Agendamentos recentes
-      const recent = allAppointments?.slice(0, 5).map(apt => ({
+      // Buscar agendamentos recentes
+      const recent = await appointmentService.getRecent(5);
+      const formattedRecent = recent.map(apt => ({
         id: apt.id,
         clientName: apt.client_name,
         service: apt.service,
         barber: apt.barber,
         date: new Date(apt.date),
         time: apt.time,
-        status: apt.status
-      })) || [];
-
-      setRecentAppointments(recent);
+        status: apt.status,
+        clientPhone: apt.client_phone
+      }));
+      
+      setRecentAppointments(formattedRecent);
 
     } catch (error) {
       console.error('Erro ao buscar dados:', error);

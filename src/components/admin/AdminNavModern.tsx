@@ -14,7 +14,9 @@ import {
   User,
   BarChart3,
   MessageSquare,
-  Phone
+  Phone,
+  Scissors,
+  FileText
 } from 'lucide-react';
 // import { useAuth } from '@/hooks/useAuth.jsx';
 // import { useNavigate } from 'react-router-dom';
@@ -49,15 +51,27 @@ const AdminNavModern = ({ currentPage, onPageChange }: AdminNavModernProps) => {
       badge: '5'
     },
     {
+      id: 'servicos',
+      name: 'Serviços',
+      icon: Scissors,
+      badge: null
+    },
+    {
+      id: 'barbeiros',
+      name: 'Barbeiros',
+      icon: Users,
+      badge: null
+    },
+    {
       id: 'clientes',
       name: 'Clientes',
-      icon: Users,
+      icon: User,
       badge: null
     },
     {
       id: 'relatorios',
       name: 'Relatórios',
-      icon: BarChart3,
+      icon: FileText,
       badge: null
     },
     {
