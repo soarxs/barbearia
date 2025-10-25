@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import AdminNavModern from './AdminNavModern';
-import DashboardModern from './DashboardModern';
+import DashboardSimple from './DashboardSimple';
 import AgendaModern from './AgendaModern';
 import ConfirmationsModern from './ConfirmationsModern';
 import ClientsModern from './ClientsModern';
@@ -13,7 +13,7 @@ const AdminModern = () => {
   const renderPage = () => {
     switch (currentPage) {
       case 'dashboard':
-        return <DashboardModern />;
+        return <DashboardSimple />;
       case 'agenda':
         return <AgendaModern />;
       case 'confirmacoes':
@@ -32,7 +32,7 @@ const AdminModern = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <AdminNavModern currentPage={currentPage} onPageChange={setCurrentPage} />
-      <main className="max-w-7xl mx-auto">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {renderPage()}
       </main>
     </div>
