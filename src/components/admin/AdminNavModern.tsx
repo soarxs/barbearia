@@ -16,8 +16,8 @@ import {
   MessageSquare,
   Phone
 } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth.jsx';
-import { useNavigate } from 'react-router-dom';
+// import { useAuth } from '@/hooks/useAuth.jsx';
+// import { useNavigate } from 'react-router-dom';
 
 interface AdminNavModernProps {
   currentPage: string;
@@ -26,8 +26,8 @@ interface AdminNavModernProps {
 
 const AdminNavModern = ({ currentPage, onPageChange }: AdminNavModernProps) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { signOut, user } = useAuth();
-  const navigate = useNavigate();
+  // const { signOut, user } = useAuth();
+  // const navigate = useNavigate();
 
   const navigationItems = [
     {
@@ -68,13 +68,9 @@ const AdminNavModern = ({ currentPage, onPageChange }: AdminNavModernProps) => {
     }
   ];
 
-  const handleLogout = async () => {
-    try {
-      await signOut();
-      navigate('/admin/login');
-    } catch (error) {
-      console.error('Erro ao fazer logout:', error);
-    }
+  const handleLogout = () => {
+    // Login pausado - apenas redirecionar para home
+    window.location.href = '/';
   };
 
   return (
@@ -155,7 +151,7 @@ const AdminNavModern = ({ currentPage, onPageChange }: AdminNavModernProps) => {
                 <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
                   <User className="w-4 h-4 text-gray-600" />
                 </div>
-                <span className="hidden md:block text-sm font-medium text-gray-700">{user?.email || 'Admin'}</span>
+                <span className="hidden md:block text-sm font-medium text-gray-700">Admin</span>
               </Button>
             </div>
 
