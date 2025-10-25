@@ -1,4 +1,0 @@
-.admin-topnav { background: rgba(0,0,0,0.9); border-bottom: 1px solid rgba(255,255,255,.08); }
-.admin-topnav .navbar-brand, .admin-topnav .nav-link { color: #fff; }
-.admin-topnav .nav-link.active, .admin-topnav .nav-link:hover { color: #f1c40f; }
-.navbar-toggler-icon { filter: invert(1); }

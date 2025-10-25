@@ -6,16 +6,11 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from '@/hooks/useAuth.jsx';
 import Inicio from './pages/Inicio.jsx';
 import NaoEncontrado from './pages/NaoEncontrado.jsx';
-import AdminLayout from './pages/Admin.jsx';
 import PrivateRoute from './pages/PrivateRouteSimple.jsx';
 import Login from './componentes/AuthAdmin/Login.jsx';
-import Dashboard from './componentes/AdminDashboard/Dashboard.jsx';
 import AdminModern from './components/admin/AdminModern.tsx';
 import AguardandoAprovacao from './pages/AguardandoAprovacao.jsx';
 import AcessoNegado from './pages/AcessoNegado.jsx';
-// import Agenda from './componentes/AgendaAdmin/Agenda.jsx'; // Removido - usando nova estrutura
-// import Agendamentos from './componentes/AgendamentosAdmin/Agendamentos.jsx'; // Removido - usando nova estrutura
-import ServicosAdmin from './componentes/ServicosAdmin/Servicos.jsx';
 import ThankYouPage from './components/ThankYouPage.tsx';
 import PWAInstallPrompt from './components/PWAInstallPrompt.tsx';
 
@@ -38,16 +33,10 @@ const App = () => (
                   path="/admin"
                   element={
                     <PrivateRoute>
-                      <AdminLayout />
+                      <AdminModern />
                     </PrivateRoute>
                   }
-                >
-                  <Route path="agenda" element={<AdminModern />} />
-                  <Route path="agendamentos" element={<AdminModern />} />
-                  <Route path="dashboard" element={<Dashboard onGo={(s) => window.location.assign(`/admin/${s}`)} />} />
-                  <Route path="servicos" element={<ServicosAdmin />} />
-                  <Route index element={<AdminModern />} />
-                </Route>
+                />
                 <Route path="*" element={<NaoEncontrado />} />
               </Routes>
           <PWAInstallPrompt />
