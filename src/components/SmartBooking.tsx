@@ -81,26 +81,32 @@ const SmartBooking = ({ onClose, selectedService }: SmartBookingProps) => {
         continue;
       }
       
-      // Se for hoje, só mostrar horários futuros
-      if (isToday && hour <= currentHour) {
-        continue;
-      }
-      
-      // Se for hoje e for o horário atual, verificar minutos
-      if (isToday && hour === currentHour && currentMinute >= 30) {
-        continue;
+      // Se for hoje, só mostrar horários futuros com margem de segurança
+      if (isToday) {
+        // Adicionar margem de 1 hora para evitar agendamentos muito próximos
+        const minHour = currentHour + 1;
+        if (hour < minHour) {
+          continue;
+        }
+        
+        // Se for o horário mínimo, verificar se já passou dos 30 minutos
+        if (hour === minHour && currentMinute > 30) {
+          continue;
+        }
       }
       
       slots.push({
         time: `${hour.toString().padStart(2, '0')}:00`,
-        label: `${hour}:00`
+        label: `${hour}:00`,
+        display: `${hour}:00`
       });
       
       // Adicionar horário de 30 minutos se não for o último horário
       if (hour < businessHours.end - 1) {
         slots.push({
           time: `${hour.toString().padStart(2, '0')}:30`,
-          label: `${hour}:30`
+          label: `${hour}:30`,
+          display: `${hour}:30`
         });
       }
     }
@@ -185,7 +191,7 @@ const SmartBooking = ({ onClose, selectedService }: SmartBookingProps) => {
             Agendamento BarberTime
           </CardTitle>
           <div className="flex justify-center gap-2 mt-2">
-            {[1, 2, 3, 4].map((stepNum) => (
+            {[1, 2, 3].map((stepNum) => (
               <div
                 key={stepNum}
                 className={`w-2 h-2 rounded-full ${
@@ -301,75 +307,100 @@ const SmartBooking = ({ onClose, selectedService }: SmartBookingProps) => {
               </div>
             )}
 
-            {/* Passo 3: Escolher Data */}
+            {/* Passo 3: Escolher Data e Horário */}
             {step === 3 && (
               <div className="space-y-4">
-                <h3 className="font-semibold">Escolha a Data</h3>
+                <h3 className="font-semibold">Escolha Data e Horário</h3>
+                
+                {/* Seleção de Data */}
                 <div>
                   <Label htmlFor="date">Data *</Label>
                   <Input
                     id="date"
                     type="date"
                     value={formData.date}
-                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                    onChange={(e) => {
+                      setFormData({ ...formData, date: e.target.value, time: '' });
+                    }}
                     min={getMinDate()}
                     required
                   />
                 </div>
+
+                {/* Lista de Horários Disponíveis */}
+                {formData.date && (
+                  <div>
+                    <Label>Horários Disponíveis *</Label>
+                    <div className="mt-2 max-h-48 overflow-y-auto border rounded-lg">
+                      {getAvailableTimeSlots(formData.date).length > 0 ? (
+                        <div className="grid grid-cols-2 gap-1 p-2">
+                          {getAvailableTimeSlots(formData.date).map((slot) => (
+                            <button
+                              key={slot.time}
+                              type="button"
+                              onClick={() => setFormData({ ...formData, time: slot.time })}
+                              className={`p-3 rounded border text-sm transition-colors ${
+                                formData.time === slot.time
+                                  ? 'border-primary bg-primary text-white'
+                                  : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                              }`}
+                            >
+                              <div className="flex items-center justify-center gap-2">
+                                <Clock className="w-4 h-4" />
+                                <span className="font-medium">{slot.display}</span>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-8 text-gray-500">
+                          <Clock className="w-8 h-8 mx-auto mb-2" />
+                          <p className="text-sm">Não há horários disponíveis para esta data</p>
+                          <p className="text-xs mt-1">Tente escolher outra data</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Informações do Agendamento */}
+                {formData.date && formData.time && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <h4 className="font-medium text-blue-900 mb-2">Resumo do Agendamento:</h4>
+                    <div className="space-y-1 text-sm text-blue-800">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="w-4 h-4" />
+                        <span>
+                          {new Date(formData.date).toLocaleDateString('pt-BR', { 
+                            weekday: 'long', 
+                            day: '2-digit', 
+                            month: '2-digit',
+                            year: 'numeric'
+                          })}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-4 h-4" />
+                        <span>{formData.time}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <User className="w-4 h-4" />
+                        <span>{formData.service} com {formData.barber}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
                 <div className="flex gap-2">
                   <Button type="button" variant="outline" onClick={() => setStep(2)} className="flex-1">
                     Voltar
                   </Button>
                   <Button
-                    type="button"
-                    onClick={() => setStep(4)}
-                    disabled={!formData.date}
-                    className="flex-1"
-                  >
-                    Continuar
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {/* Passo 4: Escolher Horário */}
-            {step === 4 && (
-              <div className="space-y-4">
-                <h3 className="font-semibold">Escolha o Horário</h3>
-                <div className="grid grid-cols-3 gap-2">
-                  {getAvailableTimeSlots(formData.date).map((slot) => (
-                    <button
-                      key={slot.time}
-                      type="button"
-                      onClick={() => setFormData({ ...formData, time: slot.time })}
-                      className={`p-2 rounded border text-sm ${
-                        formData.time === slot.time
-                          ? 'border-primary bg-primary text-white'
-                          : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                    >
-                      {slot.label}
-                    </button>
-                  ))}
-                </div>
-                
-                {formData.date && getAvailableTimeSlots(formData.date).length === 0 && (
-                  <div className="text-center py-4 text-gray-500">
-                    <Clock className="w-8 h-8 mx-auto mb-2" />
-                    <p>Não há horários disponíveis para esta data</p>
-                  </div>
-                )}
-                
-                <div className="flex gap-2">
-                  <Button type="button" variant="outline" onClick={() => setStep(3)} className="flex-1">
-                    Voltar
-                  </Button>
-                  <Button
                     type="submit"
-                    disabled={!formData.time}
+                    disabled={!formData.date || !formData.time}
                     className="flex-1"
                   >
-                    Agendar
+                    Confirmar Agendamento
                   </Button>
                 </div>
               </div>
