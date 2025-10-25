@@ -13,7 +13,90 @@ import {
   CheckCircle,
   XCircle
 } from 'lucide-react';
-import { serviceService, barberService, appointmentService } from '@/services/supabaseService';
+import { serviceService, barberService } from '@/services/supabaseService';
+import { bookingService } from '@/services/bookingService';
+
+// Componente para lista de horários
+const TimeSlotsList = ({ date, service, barber, selectedTime, onTimeSelect }: {
+  date: string;
+  service: string;
+  barber: string;
+  selectedTime: string;
+  onTimeSelect: (time: string) => void;
+}) => {
+  const [slots, setSlots] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadSlots = async () => {
+      try {
+        setLoading(true);
+        const availableSlots = await bookingService.getAvailableSlots(date, service, barber);
+        setSlots(availableSlots.map(time => ({
+          time,
+          label: time,
+          display: time
+        })));
+      } catch (error) {
+        console.error('Erro ao carregar horários:', error);
+        setSlots([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadSlots();
+  }, [date, service, barber]);
+
+  if (loading) {
+    return (
+      <div>
+        <Label>Horários Disponíveis *</Label>
+        <div className="mt-2 max-h-48 overflow-y-auto border rounded-lg">
+          <div className="text-center py-8 text-gray-500">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto mb-2"></div>
+            <p className="text-sm">Carregando horários...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <Label>Horários Disponíveis *</Label>
+      <div className="mt-2 max-h-48 overflow-y-auto border rounded-lg">
+        {slots.length > 0 ? (
+          <div className="grid grid-cols-2 gap-1 p-2">
+            {slots.map((slot) => (
+              <button
+                key={slot.time}
+                type="button"
+                onClick={() => onTimeSelect(slot.time)}
+                className={`p-3 rounded border text-sm transition-colors ${
+                  selectedTime === slot.time
+                    ? 'border-primary bg-primary text-white'
+                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                }`}
+              >
+                <div className="flex items-center justify-center gap-2">
+                  <Clock className="w-4 h-4" />
+                  <span className="font-medium">{slot.display}</span>
+                </div>
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8 text-gray-500">
+            <Clock className="w-8 h-8 mx-auto mb-2" />
+            <p className="text-sm">Não há horários disponíveis para esta data</p>
+            <p className="text-xs mt-1">Tente escolher outra data ou barbeiro</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
 interface SmartBookingProps {
   onClose: () => void;
@@ -66,52 +149,18 @@ const SmartBooking = ({ onClose, selectedService }: SmartBookingProps) => {
   }, []);
 
   // Gerar horários disponíveis baseado na data selecionada
-  const getAvailableTimeSlots = (selectedDate: string) => {
-    const now = new Date();
-    const selected = new Date(selectedDate);
-    const isToday = selected.toDateString() === now.toDateString();
-    
-    const slots = [];
-    const currentHour = now.getHours();
-    const currentMinute = now.getMinutes();
-    
-    for (let hour = businessHours.start; hour < businessHours.end; hour++) {
-      // Pular horário de almoço
-      if (hour >= businessHours.breakStart && hour < businessHours.breakEnd) {
-        continue;
-      }
-      
-      // Se for hoje, só mostrar horários futuros com margem de segurança
-      if (isToday) {
-        // Adicionar margem de 1 hora para evitar agendamentos muito próximos
-        const minHour = currentHour + 1;
-        if (hour < minHour) {
-          continue;
-        }
-        
-        // Se for o horário mínimo, verificar se já passou dos 30 minutos
-        if (hour === minHour && currentMinute > 30) {
-          continue;
-        }
-      }
-      
-      slots.push({
-        time: `${hour.toString().padStart(2, '0')}:00`,
-        label: `${hour}:00`,
-        display: `${hour}:00`
-      });
-      
-      // Adicionar horário de 30 minutos se não for o último horário
-      if (hour < businessHours.end - 1) {
-        slots.push({
-          time: `${hour.toString().padStart(2, '0')}:30`,
-          label: `${hour}:30`,
-          display: `${hour}:30`
-        });
-      }
+  const getAvailableTimeSlots = async (selectedDate: string, service: string, barber: string) => {
+    try {
+      const slots = await bookingService.getAvailableSlots(selectedDate, service, barber);
+      return slots.map(time => ({
+        time,
+        label: time,
+        display: time
+      }));
+    } catch (error) {
+      console.error('Erro ao buscar horários:', error);
+      return [];
     }
-    
-    return slots;
   };
 
   // Gerar datas disponíveis (próximos 30 dias)
@@ -150,11 +199,10 @@ const SmartBooking = ({ onClose, selectedService }: SmartBookingProps) => {
         barber: formData.barber,
         date: formData.date,
         time: formData.time,
-        status: 'pending',
         notes: formData.notes
       };
 
-      await appointmentService.create(appointmentData);
+      await bookingService.createAppointment(appointmentData);
       
       // Mostrar sucesso
       alert('Agendamento realizado com sucesso!');
@@ -328,39 +376,14 @@ const SmartBooking = ({ onClose, selectedService }: SmartBookingProps) => {
                 </div>
 
                 {/* Lista de Horários Disponíveis */}
-                {formData.date && (
-                  <div>
-                    <Label>Horários Disponíveis *</Label>
-                    <div className="mt-2 max-h-48 overflow-y-auto border rounded-lg">
-                      {getAvailableTimeSlots(formData.date).length > 0 ? (
-                        <div className="grid grid-cols-2 gap-1 p-2">
-                          {getAvailableTimeSlots(formData.date).map((slot) => (
-                            <button
-                              key={slot.time}
-                              type="button"
-                              onClick={() => setFormData({ ...formData, time: slot.time })}
-                              className={`p-3 rounded border text-sm transition-colors ${
-                                formData.time === slot.time
-                                  ? 'border-primary bg-primary text-white'
-                                  : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                              }`}
-                            >
-                              <div className="flex items-center justify-center gap-2">
-                                <Clock className="w-4 h-4" />
-                                <span className="font-medium">{slot.display}</span>
-                              </div>
-                            </button>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="text-center py-8 text-gray-500">
-                          <Clock className="w-8 h-8 mx-auto mb-2" />
-                          <p className="text-sm">Não há horários disponíveis para esta data</p>
-                          <p className="text-xs mt-1">Tente escolher outra data</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                {formData.date && formData.service && formData.barber && (
+                  <TimeSlotsList 
+                    date={formData.date}
+                    service={formData.service}
+                    barber={formData.barber}
+                    selectedTime={formData.time}
+                    onTimeSelect={(time) => setFormData({ ...formData, time })}
+                  />
                 )}
 
                 {/* Informações do Agendamento */}
