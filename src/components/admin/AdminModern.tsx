@@ -3,8 +3,8 @@ import AdminNavModern from './AdminNavModern';
 import DashboardSimple from './DashboardSimple';
 import AgendaModern from './AgendaModern';
 import ConfirmationsModern from './ConfirmationsModern';
-import ServicesManagement from './ServicesManagement';
-import BarbersManagement from './BarbersManagement';
+import ServicesManagementFixed from './ServicesManagementFixed';
+import BarbersManagementFixed from './BarbersManagementFixed';
 import ClientsModern from './ClientsModern';
 import ReportsModern from './ReportsModern';
 import SettingsModern from './SettingsModern';
@@ -21,9 +21,9 @@ const AdminModern = () => {
       case 'confirmacoes':
         return <ConfirmationsModern />;
       case 'servicos':
-        return <ServicesManagement />;
+        return <ServicesManagementFixed />;
       case 'barbeiros':
-        return <BarbersManagement />;
+        return <BarbersManagementFixed />;
       case 'clientes':
         return <ClientsModern />;
       case 'relatorios':

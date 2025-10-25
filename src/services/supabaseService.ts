@@ -179,47 +179,81 @@ export const clientService = {
 export const serviceService = {
   // Buscar todos os serviços
   async getAll() {
-    const { data, error } = await supabase
-      .from('services')
-      .select('*')
-      .eq('active', true)
-      .order('name');
-    
-    if (error) throw error;
-    return data;
+    try {
+      const { data, error } = await supabase
+        .from('services')
+        .select('*')
+        .order('name');
+      
+      if (error) {
+        console.error('Erro ao buscar serviços:', error);
+        throw error;
+      }
+      
+      return data || [];
+    } catch (error) {
+      console.error('Erro no serviceService.getAll:', error);
+      throw error;
+    }
   },
 
   // Criar novo serviço
   async create(service: Omit<Service, 'id' | 'created_at'>) {
-    const { data, error } = await supabase
-      .from('services')
-      .insert([service])
-      .select();
-    
-    if (error) throw error;
-    return data[0];
+    try {
+      const { data, error } = await supabase
+        .from('services')
+        .insert([service])
+        .select();
+      
+      if (error) {
+        console.error('Erro ao criar serviço:', error);
+        throw error;
+      }
+      
+      return data[0];
+    } catch (error) {
+      console.error('Erro no serviceService.create:', error);
+      throw error;
+    }
   },
 
   // Atualizar serviço
   async update(id: string, updates: Partial<Service>) {
-    const { data, error } = await supabase
-      .from('services')
-      .update(updates)
-      .eq('id', id)
-      .select();
-    
-    if (error) throw error;
-    return data[0];
+    try {
+      const { data, error } = await supabase
+        .from('services')
+        .update(updates)
+        .eq('id', id)
+        .select();
+      
+      if (error) {
+        console.error('Erro ao atualizar serviço:', error);
+        throw error;
+      }
+      
+      return data[0];
+    } catch (error) {
+      console.error('Erro no serviceService.update:', error);
+      throw error;
+    }
   },
 
   // Deletar serviço
   async delete(id: string) {
-    const { error } = await supabase
-      .from('services')
-      .delete()
-      .eq('id', id);
-    
-    if (error) throw error;
+    try {
+      const { error } = await supabase
+        .from('services')
+        .delete()
+        .eq('id', id);
+      
+      if (error) {
+        console.error('Erro ao deletar serviço:', error);
+        throw error;
+      }
+    } catch (error) {
+      console.error('Erro no serviceService.delete:', error);
+      throw error;
+    }
   }
 };
 
@@ -227,47 +261,81 @@ export const serviceService = {
 export const barberService = {
   // Buscar todos os barbeiros
   async getAll() {
-    const { data, error } = await supabase
-      .from('barbers')
-      .select('*')
-      .eq('active', true)
-      .order('name');
-    
-    if (error) throw error;
-    return data;
+    try {
+      const { data, error } = await supabase
+        .from('barbers')
+        .select('*')
+        .order('name');
+      
+      if (error) {
+        console.error('Erro ao buscar barbeiros:', error);
+        throw error;
+      }
+      
+      return data || [];
+    } catch (error) {
+      console.error('Erro no barberService.getAll:', error);
+      throw error;
+    }
   },
 
   // Criar novo barbeiro
   async create(barber: Omit<Barber, 'id' | 'created_at'>) {
-    const { data, error } = await supabase
-      .from('barbers')
-      .insert([barber])
-      .select();
-    
-    if (error) throw error;
-    return data[0];
+    try {
+      const { data, error } = await supabase
+        .from('barbers')
+        .insert([barber])
+        .select();
+      
+      if (error) {
+        console.error('Erro ao criar barbeiro:', error);
+        throw error;
+      }
+      
+      return data[0];
+    } catch (error) {
+      console.error('Erro no barberService.create:', error);
+      throw error;
+    }
   },
 
   // Atualizar barbeiro
   async update(id: string, updates: Partial<Barber>) {
-    const { data, error } = await supabase
-      .from('barbers')
-      .update(updates)
-      .eq('id', id)
-      .select();
-    
-    if (error) throw error;
-    return data[0];
+    try {
+      const { data, error } = await supabase
+        .from('barbers')
+        .update(updates)
+        .eq('id', id)
+        .select();
+      
+      if (error) {
+        console.error('Erro ao atualizar barbeiro:', error);
+        throw error;
+      }
+      
+      return data[0];
+    } catch (error) {
+      console.error('Erro no barberService.update:', error);
+      throw error;
+    }
   },
 
   // Deletar barbeiro
   async delete(id: string) {
-    const { error } = await supabase
-      .from('barbers')
-      .delete()
-      .eq('id', id);
-    
-    if (error) throw error;
+    try {
+      const { error } = await supabase
+        .from('barbers')
+        .delete()
+        .eq('id', id);
+      
+      if (error) {
+        console.error('Erro ao deletar barbeiro:', error);
+        throw error;
+      }
+    } catch (error) {
+      console.error('Erro no barberService.delete:', error);
+      throw error;
+    }
   }
 };
 
