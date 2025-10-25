@@ -81,8 +81,13 @@ export const bookingService = {
       const serviceDuration = SERVICE_DURATIONS[service] || 30;
       const slots: string[] = [];
       const now = this.getCurrentDateTimeMontesClaros();
-      const selectedDate = new Date(date);
-      const isToday = selectedDate.toDateString() === now.toDateString();
+      const todayString = now.toISOString().split('T')[0]; // YYYY-MM-DD
+      const isToday = date === todayString;
+      
+      console.log('📅 Debug de Data:');
+      console.log('Data selecionada:', date);
+      console.log('Data de hoje (Montes Claros):', todayString);
+      console.log('É hoje?', isToday);
       
       // Para hoje: horário atual + 1 hora de margem
       // Para outros dias: a partir das 8h
@@ -220,15 +225,19 @@ export const bookingService = {
   // Verificar se a data está no futuro
   isDateValid(date: string): boolean {
     const today = this.getCurrentDateTimeMontesClaros();
-    const selectedDate = new Date(date + 'T00:00:00');
-    return selectedDate >= new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const todayString = today.toISOString().split('T')[0]; // YYYY-MM-DD
+    console.log('📅 Validação de Data:');
+    console.log('Data selecionada:', date);
+    console.log('Data de hoje (Montes Claros):', todayString);
+    console.log('É válida?', date >= todayString);
+    return date >= todayString;
   },
 
   // Verificar se o horário está no futuro (para hoje)
   isTimeValid(date: string, time: string): boolean {
     const now = this.getCurrentDateTimeMontesClaros();
-    const selectedDate = new Date(date);
-    const isToday = selectedDate.toDateString() === now.toDateString();
+    const todayString = now.toISOString().split('T')[0]; // YYYY-MM-DD
+    const isToday = date === todayString;
     
     if (!isToday) return true;
     
