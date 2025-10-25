@@ -24,11 +24,7 @@ const DashboardModern = () => {
     totalClients: 0,
     todayAppointments: 0,
     monthlyRevenue: 0,
-    averageRating: 0,
-    pendingAppointments: 0,
-    confirmedAppointments: 0,
-    completedAppointments: 0,
-    cancelledAppointments: 0
+    totalAppointments: 0
   });
   const [recentAppointments, setRecentAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -77,30 +73,21 @@ const DashboardModern = () => {
         return aptDate.getMonth() === currentMonth && aptDate.getFullYear() === currentYear;
       }) || [];
 
-      // Calcular receita (você pode ajustar os preços conforme sua tabela de serviços)
-      const monthlyRevenue = monthlyAppointments.reduce((total, apt) => {
-        // Assumindo preços padrão - ajuste conforme sua estrutura
-        const servicePrice = apt.service === 'Corte + Barba' ? 65 : 
-                           apt.service === 'Corte' ? 40 : 
-                           apt.service === 'Barba' ? 30 : 50;
-        return total + servicePrice;
-      }, 0);
+      // Calcular receita mensal
+      const servicePrices: { [key: string]: number } = {
+        'Corte': 25, 'Barba': 15, 'Corte + Barba': 35, 'Sobrancelha': 10, 'Pigmentação': 50
+      };
 
-      // Contar por status
-      const pendingCount = allAppointments?.filter(apt => apt.status === 'pending').length || 0;
-      const confirmedCount = allAppointments?.filter(apt => apt.status === 'confirmed').length || 0;
-      const completedCount = allAppointments?.filter(apt => apt.status === 'completed').length || 0;
-      const cancelledCount = allAppointments?.filter(apt => apt.status === 'cancelled').length || 0;
+      const monthlyRevenue = monthlyAppointments.reduce((total, apt) => {
+        const price = servicePrices[apt.service] || 25;
+        return total + (apt.status === 'confirmado' ? price : 0);
+      }, 0);
 
       setStats({
         totalClients: uniqueClients,
         todayAppointments: todayCount,
         monthlyRevenue,
-        averageRating: 4.8, // Você pode implementar sistema de avaliações
-        pendingAppointments: pendingCount,
-        confirmedAppointments: confirmedCount,
-        completedAppointments: completedCount,
-        cancelledAppointments: cancelledCount
+        totalAppointments: allAppointments?.length || 0
       });
 
       // Buscar agendamentos recentes

@@ -59,29 +59,36 @@ const Hero = ({ onBookingClick }: HeroProps) => {
       </div>
 
       {/* Info Cards */}
-      <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 w-full max-w-4xl px-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="absolute bottom-16 sm:bottom-20 left-1/2 transform -translate-x-1/2 w-full max-w-4xl px-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
           <Card className="bg-white/90 backdrop-blur-sm border-white/20">
-            <CardContent className="p-4 text-center">
-              <Clock className="w-6 h-6 mx-auto mb-2 text-primary" />
-              <h3 className="font-semibold text-sm">Horário de Funcionamento</h3>
-              <p className="text-xs text-gray-600">Seg - Sex: 9h às 18h<br/>Sáb: 9h às 17h</p>
+            <CardContent className="p-3 sm:p-4 text-center">
+              <Clock className="w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-2 text-primary" />
+              <h3 className="font-semibold text-xs sm:text-sm">Horário</h3>
+              <p className="text-xs text-gray-600">Seg-Sex: 9h-18h<br/>Sáb: 9h-17h</p>
             </CardContent>
           </Card>
           
           <Card className="bg-white/90 backdrop-blur-sm border-white/20">
-            <CardContent className="p-4 text-center">
-              <MapPin className="w-6 h-6 mx-auto mb-2 text-primary" />
-              <h3 className="font-semibold text-sm">Localização</h3>
+            <CardContent className="p-3 sm:p-4 text-center">
+              <MapPin className="w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-2 text-primary" />
+              <h3 className="font-semibold text-xs sm:text-sm">Localização</h3>
               <p className="text-xs text-gray-600">Centro da cidade<br/>Fácil acesso</p>
             </CardContent>
           </Card>
           
           <Card className="bg-white/90 backdrop-blur-sm border-white/20">
-            <CardContent className="p-4 text-center">
-              <Star className="w-6 h-6 mx-auto mb-2 text-primary" />
-              <h3 className="font-semibold text-sm">Avaliação</h3>
-              <p className="text-xs text-gray-600">4.9/5 estrelas<br/>+500 clientes satisfeitos</p>
+            <CardContent className="p-3 sm:p-4 text-center">
+              <Star className="w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-2 text-primary" />
+              <h3 className="font-semibold text-xs sm:text-sm">Avaliação</h3>
+              <p className="text-xs text-gray-600">5.0 no Google<br/>
+                <button 
+                  onClick={() => window.open('https://g.page/r/barbertime/review', '_blank')}
+                  className="text-primary hover:underline"
+                >
+                  Avalie-nos
+                </button>
+              </p>
             </CardContent>
           </Card>
         </div>

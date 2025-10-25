@@ -58,7 +58,7 @@ const Services = ({ onBookingClick }: ServicesProps) => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-8 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 max-w-7xl mx-auto">
           {loading ? (
             // Skeleton loading
             Array.from({ length: 4 }).map((_, index) => (
@@ -81,7 +81,7 @@ const Services = ({ onBookingClick }: ServicesProps) => {
               }}
               onClick={() => onBookingClick(service.id)}
             >
-              <div className="relative h-56 sm:h-56 md:h-64 overflow-hidden">
+              <div className="relative h-48 sm:h-56 overflow-hidden">
                 <img 
                   src={service.image} 
                   alt={service.title}
@@ -108,15 +108,22 @@ const Services = ({ onBookingClick }: ServicesProps) => {
                 </div>
                 <p className="text-muted-foreground text-sm sm:text-base mb-3">{service.description}</p>
                 
-                <div className="flex items-center gap-4 text-xs text-gray-500 mb-3">
+                <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
                   <div className="flex items-center gap-1">
                     <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                    <span>4.9</span>
+                    <span>5.0 no Google</span>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <Users className="w-3 h-3" />
-                    <span>+50 agendamentos</span>
-                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      window.open('https://g.page/r/barbertime/review', '_blank');
+                    }}
+                    className="text-xs px-2 py-1 h-6"
+                  >
+                    Avaliar
+                  </Button>
                 </div>
                 <div className="flex flex-col gap-2">
                   <Button 
