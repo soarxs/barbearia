@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Clock, Star, Users, Phone } from 'lucide-react';
 import { getServices } from '@/lib/dataStore.js';
 import { useTenant } from '@/hooks/useTenant.js';
+import GoogleCalendarBooking from './GoogleCalendarBooking';
 const haircutImage = 'https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=800';
 const beardImage = 'https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=800';
 const comboImage = 'https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=800';
@@ -18,6 +19,8 @@ const Services = ({ onBookingClick }: ServicesProps) => {
   const { data: tenant } = useTenant()
   const [services, setServices] = useState<Array<any>>([]);
   const [loading, setLoading] = useState(true);
+  const [isBookingOpen, setIsBookingOpen] = useState(false);
+  const [selectedService, setSelectedService] = useState<string>('');
 
   useEffect(() => {
     const loadServices = async () => {
@@ -130,7 +133,8 @@ const Services = ({ onBookingClick }: ServicesProps) => {
                     className="w-full"
                     onClick={(e) => {
                       e.stopPropagation();
-                      onBookingClick(service.id);
+                      setSelectedService(service.title);
+                      setIsBookingOpen(true);
                     }}
                   >
                     Agendar Agora
@@ -155,6 +159,14 @@ const Services = ({ onBookingClick }: ServicesProps) => {
           )}
         </div>
       </div>
+      
+      {/* Google Calendar Booking Modal */}
+      {isBookingOpen && (
+        <GoogleCalendarBooking
+          onClose={() => setIsBookingOpen(false)}
+          selectedService={selectedService}
+        />
+      )}
     </section>
   );
 };

@@ -1,12 +1,16 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Phone, Clock, MapPin, Star } from 'lucide-react';
+import GoogleCalendarBooking from './GoogleCalendarBooking';
+import { useState } from 'react';
 
 interface HeroProps {
   onBookingClick: () => void;
 }
 
 const Hero = ({ onBookingClick }: HeroProps) => {
+  const [isBookingOpen, setIsBookingOpen] = useState(false);
+
   return (
     <section 
       id="inicio"
@@ -37,7 +41,7 @@ const Hero = ({ onBookingClick }: HeroProps) => {
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Button 
-              onClick={onBookingClick}
+              onClick={() => setIsBookingOpen(true)}
               size="lg"
               className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold text-base sm:text-lg px-8 sm:px-12 py-5 sm:py-6 animate-scale-in"
               style={{ boxShadow: 'var(--shadow-glow)' }}
@@ -100,6 +104,13 @@ const Hero = ({ onBookingClick }: HeroProps) => {
           <div className="w-1 h-3 bg-primary rounded-full animate-pulse" />
         </div>
       </div>
+      
+      {/* Google Calendar Booking Modal */}
+      {isBookingOpen && (
+        <GoogleCalendarBooking
+          onClose={() => setIsBookingOpen(false)}
+        />
+      )}
     </section>
   );
 };
