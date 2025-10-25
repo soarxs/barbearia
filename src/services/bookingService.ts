@@ -23,23 +23,56 @@ export const bookingService = {
   // Verificar se um horário está disponível
   async isSlotAvailable(date: string, time: string, service: string, barber: string): Promise<boolean> {
     try {
+      // Primeiro verificar se o horário é válido (não passado)
+      if (!this.isTimeValid(date, time)) {
+        console.log(`❌ Horário ${time} inválido (passado)`);
+        return false;
+      }
+      
       const serviceDuration = SERVICE_DURATIONS[service] || 30;
-      const startTime = new Date(`${date}T${time}`);
-      const endTime = new Date(startTime.getTime() + serviceDuration * 60000);
       
-      // Buscar conflitos
-      const { data: conflicts } = await supabase
+      // Buscar agendamentos existentes para o barbeiro na data
+      const { data: existingAppointments } = await supabase
         .from('appointments')
-        .select('*')
+        .select('time')
         .eq('date', date)
-        .eq('barber', barber)
-        .or(`and(time.lt.${time},time.gte.${time})`);
+        .eq('barber', barber);
       
-      return !conflicts || conflicts.length === 0;
+      if (!existingAppointments || existingAppointments.length === 0) {
+        console.log(`✅ Horário ${time} disponível (sem conflitos)`);
+        return true;
+      }
+      
+      // Verificar conflitos de horário
+      const selectedTime = time;
+      const selectedMinutes = this.timeToMinutes(selectedTime);
+      const selectedEndMinutes = selectedMinutes + serviceDuration;
+      
+      for (const appointment of existingAppointments) {
+        const aptTime = appointment.time;
+        const aptMinutes = this.timeToMinutes(aptTime);
+        const aptDuration = SERVICE_DURATIONS[service] || 30;
+        const aptEndMinutes = aptMinutes + aptDuration;
+        
+        // Verificar sobreposição
+        if ((selectedMinutes < aptEndMinutes && selectedEndMinutes > aptMinutes)) {
+          console.log(`❌ Horário ${time} conflita com ${aptTime}`);
+          return false;
+        }
+      }
+      
+      console.log(`✅ Horário ${time} disponível`);
+      return true;
     } catch (error) {
       console.error('Erro ao verificar disponibilidade:', error);
       return false;
     }
+  },
+
+  // Converter horário para minutos
+  timeToMinutes(time: string): number {
+    const [hours, minutes] = time.split(':').map(Number);
+    return hours * 60 + minutes;
   },
 
   // Gerar horários disponíveis para uma data
