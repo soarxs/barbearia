@@ -219,6 +219,41 @@ const SmartBooking = ({ onClose, selectedService }: SmartBookingProps) => {
     return today.toISOString().split('T')[0];
   };
 
+  // Função para gerar opções de data
+  const getDateOptions = () => {
+    const today = new Date();
+    const options = [];
+    
+    // Hoje
+    options.push({
+      value: today.toISOString().split('T')[0],
+      label: 'Hoje',
+      description: today.toLocaleDateString('pt-BR', { 
+        day: '2-digit', 
+        month: 'long', 
+        year: 'numeric' 
+      })
+    });
+    
+    // Próximos 3 dias
+    for (let i = 1; i <= 3; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() + i);
+      
+      options.push({
+        value: date.toISOString().split('T')[0],
+        label: date.toLocaleDateString('pt-BR', { weekday: 'long' }),
+        description: date.toLocaleDateString('pt-BR', { 
+          day: '2-digit', 
+          month: 'long', 
+          year: 'numeric' 
+        })
+      });
+    }
+    
+    return options;
+  };
+
   if (loading) {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -292,20 +327,38 @@ const SmartBooking = ({ onClose, selectedService }: SmartBookingProps) => {
             {/* Passo 2: Escolher Data */}
             {step === 2 && (
               <div className="space-y-4">
-                <h3 className="font-semibold">Escolha a Data</h3>
+                <h3 className="font-semibold text-center text-white mb-6">ESCOLHA O DIA</h3>
                 
-                <div>
-                  <Label htmlFor="date">Data *</Label>
-                  <Input
-                    id="date"
-                    type="date"
-                    value={formData.date}
-                    onChange={(e) => {
-                      setFormData({ ...formData, date: e.target.value, time: '' });
-                    }}
-                    min={getMinDate()}
-                    required
-                  />
+                {/* Opções de Data */}
+                <div className="space-y-3">
+                  {getDateOptions().map((dateOption) => (
+                    <div
+                      key={dateOption.value}
+                      className={`border rounded-lg p-4 cursor-pointer transition-all ${
+                        formData.date === dateOption.value
+                          ? 'border-blue-500 bg-blue-50'
+                          : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                      }`}
+                      onClick={() => setFormData({ ...formData, date: dateOption.value, time: '' })}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                            <Calendar className="w-4 h-4 text-blue-600" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-900">{dateOption.label}</p>
+                            <p className="text-sm text-gray-500">{dateOption.description}</p>
+                          </div>
+                        </div>
+                        {formData.date === dateOption.value && (
+                          <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                            <div className="w-2 h-2 bg-white rounded-full"></div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
                 </div>
 
                 {/* Mostrar horários disponíveis se data selecionada */}
