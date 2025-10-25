@@ -51,8 +51,11 @@ export const bookingService = {
       const selectedDate = new Date(date);
       const isToday = selectedDate.toDateString() === now.toDateString();
       
-      // Horário mínimo (hoje + 1 hora, outros dias a partir das 8h)
-      const minHour = isToday ? now.getHours() + 1 : BUSINESS_CONFIG.startHour;
+      // Para hoje: horário atual + 1 hora de margem
+      // Para outros dias: a partir das 8h
+      const currentHour = now.getHours();
+      const currentMinute = now.getMinutes();
+      const minHour = isToday ? currentHour + 1 : BUSINESS_CONFIG.startHour;
       
       for (let hour = BUSINESS_CONFIG.startHour; hour < BUSINESS_CONFIG.endHour; hour++) {
         // Pular horário de almoço
@@ -62,6 +65,11 @@ export const bookingService = {
         
         // Pular horários passados
         if (hour < minHour) {
+          continue;
+        }
+        
+        // Se for hoje e for o horário mínimo, verificar minutos
+        if (isToday && hour === minHour && currentMinute > 30) {
           continue;
         }
         
@@ -166,12 +174,17 @@ export const bookingService = {
     if (!isToday) return true;
     
     const [hours, minutes] = time.split(':').map(Number);
-    const selectedTime = new Date();
-    selectedTime.setHours(hours, minutes, 0, 0);
+    const currentHour = now.getHours();
+    const currentMinute = now.getMinutes();
     
-    // Adicionar margem de segurança
-    const minTime = new Date(now.getTime() + BUSINESS_CONFIG.minAdvanceTime * 60000);
+    // Se o horário selecionado já passou, não é válido
+    if (hours < currentHour) return false;
+    if (hours === currentHour && minutes <= currentMinute) return false;
     
-    return selectedTime >= minTime;
+    // Adicionar margem de segurança de 1 hora
+    const minHour = currentHour + 1;
+    if (hours < minHour) return false;
+    
+    return true;
   }
 };
