@@ -410,8 +410,66 @@ const SmartBooking = ({ onClose, selectedService }: SmartBookingProps) => {
               </div>
             )}
 
-            {/* Passo 3: Dados Pessoais e Barbeiro */}
+            {/* Passo 3: Escolher Horário */}
             {step === 3 && (
+              <div className="space-y-4">
+                {/* Lista de Horários Disponíveis */}
+                {formData.date && formData.service && (
+                  <TimeSlotsList 
+                    date={formData.date}
+                    service={formData.service}
+                    barber={formData.barber}
+                    selectedTime={formData.time}
+                    onTimeSelect={(time) => setFormData({ ...formData, time })}
+                  />
+                )}
+
+                {/* Informações do Agendamento */}
+                {formData.date && formData.time && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <h4 className="font-medium text-blue-900 mb-2">Resumo do Agendamento:</h4>
+                    <div className="space-y-1 text-sm text-blue-800">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="w-4 h-4" />
+                        <span>
+                          {new Date(formData.date).toLocaleDateString('pt-BR', { 
+                            weekday: 'long', 
+                            day: '2-digit', 
+                            month: '2-digit',
+                            year: 'numeric'
+                          })}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-4 h-4" />
+                        <span>{formData.time}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <User className="w-4 h-4" />
+                        <span>{formData.service}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                <div className="flex gap-2">
+                  <Button type="button" variant="outline" onClick={() => setStep(2)} className="flex-1">
+                    Voltar
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={() => setStep(4)}
+                    disabled={!formData.time}
+                    className="flex-1"
+                  >
+                    Continuar
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Passo 4: Dados Pessoais e Barbeiro */}
+            {step === 4 && (
               <div className="space-y-4">
                 <h3 className="font-semibold">Seus Dados</h3>
                 <div className="space-y-3">
@@ -461,65 +519,6 @@ const SmartBooking = ({ onClose, selectedService }: SmartBookingProps) => {
                     </select>
                   </div>
                 </div>
-                <div className="flex gap-2">
-                  <Button type="button" variant="outline" onClick={() => setStep(2)} className="flex-1">
-                    Voltar
-                  </Button>
-                  <Button
-                    type="button"
-                    onClick={() => setStep(4)}
-                    disabled={!formData.name || !formData.phone || !formData.barber}
-                    className="flex-1"
-                  >
-                    Continuar
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {/* Passo 4: Escolher Horário */}
-            {step === 4 && (
-              <div className="space-y-4">
-                <h3 className="font-semibold">Escolha o Horário</h3>
-                
-                {/* Lista de Horários Disponíveis */}
-                {formData.date && formData.service && formData.barber && (
-                  <TimeSlotsList 
-                    date={formData.date}
-                    service={formData.service}
-                    barber={formData.barber}
-                    selectedTime={formData.time}
-                    onTimeSelect={(time) => setFormData({ ...formData, time })}
-                  />
-                )}
-
-                {/* Informações do Agendamento */}
-                {formData.date && formData.time && (
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                    <h4 className="font-medium text-blue-900 mb-2">Resumo do Agendamento:</h4>
-                    <div className="space-y-1 text-sm text-blue-800">
-                      <div className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4" />
-                        <span>
-                          {new Date(formData.date).toLocaleDateString('pt-BR', { 
-                            weekday: 'long', 
-                            day: '2-digit', 
-                            month: '2-digit',
-                            year: 'numeric'
-                          })}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Clock className="w-4 h-4" />
-                        <span>{formData.time}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <User className="w-4 h-4" />
-                        <span>{formData.service} com {formData.barber}</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
                 
                 <div className="flex gap-2">
                   <Button type="button" variant="outline" onClick={() => setStep(3)} className="flex-1">
@@ -527,7 +526,7 @@ const SmartBooking = ({ onClose, selectedService }: SmartBookingProps) => {
                   </Button>
                   <Button
                     type="submit"
-                    disabled={!formData.date || !formData.time}
+                    disabled={!formData.name || !formData.phone || !formData.barber}
                     className="flex-1"
                   >
                     Confirmar Agendamento
