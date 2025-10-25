@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Clock, Star, Users, Phone } from 'lucide-react';
 import { serviceService } from '@/services/supabaseService';
-import GoogleCalendarBooking from './GoogleCalendarBooking';
+import SmartBooking from './SmartBooking';
 const haircutImage = 'https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=800';
 const beardImage = 'https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=800';
 const comboImage = 'https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=800';
@@ -162,7 +162,7 @@ const Services = ({ onBookingClick }: ServicesProps) => {
       
       {/* Google Calendar Booking Modal */}
       {isBookingOpen && (
-        <GoogleCalendarBooking
+        <SmartBooking
           onClose={() => setIsBookingOpen(false)}
           selectedService={selectedService}
         />

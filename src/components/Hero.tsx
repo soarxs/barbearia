@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Phone, Clock, MapPin, Star } from 'lucide-react';
-import GoogleCalendarBooking from './GoogleCalendarBooking';
+import SmartBooking from './SmartBooking';
 import { useState } from 'react';
 
 interface HeroProps {
@@ -106,11 +106,11 @@ const Hero = ({ onBookingClick }: HeroProps) => {
       </div>
       
       {/* Google Calendar Booking Modal */}
-      {isBookingOpen && (
-        <GoogleCalendarBooking
-          onClose={() => setIsBookingOpen(false)}
+    {isBookingOpen && (
+        <SmartBooking
+            onClose={() => setIsBookingOpen(false)}
         />
-      )}
+    )}
     </section>
   );
 };
