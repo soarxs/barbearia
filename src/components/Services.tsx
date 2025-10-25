@@ -4,8 +4,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Clock, Star, Users, Phone } from 'lucide-react';
-import { getServices } from '@/lib/dataStore.js';
-import { useTenant } from '@/hooks/useTenant.js';
+import { serviceService } from '@/services/supabaseService';
 import GoogleCalendarBooking from './GoogleCalendarBooking';
 const haircutImage = 'https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=800';
 const beardImage = 'https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=800';
@@ -16,7 +15,6 @@ interface ServicesProps {
 }
 
 const Services = ({ onBookingClick }: ServicesProps) => {
-  const { data: tenant } = useTenant()
   const [services, setServices] = useState<Array<any>>([]);
   const [loading, setLoading] = useState(true);
   const [isBookingOpen, setIsBookingOpen] = useState(false);
@@ -24,30 +22,32 @@ const Services = ({ onBookingClick }: ServicesProps) => {
 
   useEffect(() => {
     const loadServices = async () => {
-      if (tenant?.barbershop?.id) {
-        try {
-          setLoading(true);
-          const cfg = await getServices(tenant.barbershop.id);
-          // normalize shape
-          const mapped = cfg.map((s) => ({
-            id: s.id,
-            title: s.name,
-            description: s.description || 'Serviço premium BarberTime.',
-            price: Number(s.price || 0),
-            image: s.image || (s.name.toLowerCase().includes('corte') ? haircutImage : s.name.toLowerCase().includes('barba') ? beardImage : comboImage),
-            icon: s.icon || '💈',
-          }));
-          setServices(mapped);
-        } catch (error) {
-          setServices([]);
-        } finally {
-          setLoading(false);
-        }
+      try {
+        setLoading(true);
+        const supabaseServices = await serviceService.getAll();
+        
+        const mapped = supabaseServices.map((s) => ({
+          id: s.id,
+          title: s.name,
+          description: s.description || 'Serviço premium BarberTime.',
+          price: Number(s.price || 0),
+          duration: s.duration,
+          image: s.name.toLowerCase().includes('corte') ? haircutImage : 
+                 s.name.toLowerCase().includes('barba') ? beardImage : comboImage,
+          icon: '💈',
+        }));
+        
+        setServices(mapped);
+      } catch (error) {
+        console.error('Erro ao carregar serviços:', error);
+        setServices([]);
+      } finally {
+        setLoading(false);
       }
     };
 
     loadServices();
-  }, [tenant]);
+  }, []);
 
   return (
     <section id="servicos" className="py-12 sm:py-16 md:py-20 bg-card">

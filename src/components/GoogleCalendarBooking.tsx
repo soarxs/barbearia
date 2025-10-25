@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, Clock, User, Phone, MessageSquare } from 'lucide-react';
+import { serviceService, barberService } from '@/services/supabaseService';
 
 interface GoogleCalendarBookingProps {
   onClose: () => void;
@@ -11,22 +12,40 @@ interface GoogleCalendarBookingProps {
 
 const GoogleCalendarBooking = ({ onClose, selectedService }: GoogleCalendarBookingProps) => {
   const [step, setStep] = useState(1);
+  const [services, setServices] = useState<any[]>([]);
+  const [barbers, setBarbers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
     email: '',
     service: selectedService || '',
+    barber: '',
     date: '',
     time: '',
     notes: ''
   });
 
-  const services = [
-    { id: 'corte', name: 'Corte de Cabelo', price: 'R$ 25', duration: '30min' },
-    { id: 'barba', name: 'Barba', price: 'R$ 15', duration: '20min' },
-    { id: 'corte-barba', name: 'Corte + Barba', price: 'R$ 35', duration: '45min' },
-    { id: 'sobrancelha', name: 'Sobrancelha', price: 'R$ 10', duration: '15min' }
-  ];
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        const [servicesData, barbersData] = await Promise.all([
+          serviceService.getAll(),
+          barberService.getAll()
+        ]);
+        
+        setServices(servicesData);
+        setBarbers(barbersData);
+      } catch (error) {
+        console.error('Erro ao carregar dados:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
 
   const timeSlots = [
     '08:00', '09:00', '10:00', '11:00', '12:00',
@@ -96,25 +115,29 @@ Telefone: ${formData.phone}`;
             <div className="space-y-4">
               <h3 className="font-semibold">Escolha o Serviço</h3>
               <div className="grid gap-3">
-                {services.map((service) => (
-                  <button
-                    key={service.id}
-                    onClick={() => setFormData({ ...formData, service: service.name })}
-                    className={`p-3 rounded-lg border text-left transition-colors ${
-                      formData.service === service.name
-                        ? 'border-primary bg-primary/10'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                  >
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <h4 className="font-medium">{service.name}</h4>
-                        <p className="text-sm text-gray-600">{service.duration}</p>
+                {loading ? (
+                  <div className="text-center py-4">Carregando serviços...</div>
+                ) : (
+                  services.map((service) => (
+                    <button
+                      key={service.id}
+                      onClick={() => setFormData({ ...formData, service: service.name })}
+                      className={`p-3 rounded-lg border text-left transition-colors ${
+                        formData.service === service.name
+                          ? 'border-primary bg-primary/10'
+                          : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                    >
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <h4 className="font-medium">{service.name}</h4>
+                          <p className="text-sm text-gray-600">{service.duration}min</p>
+                        </div>
+                        <Badge variant="secondary">R$ {service.price}</Badge>
                       </div>
-                      <Badge variant="secondary">{service.price}</Badge>
-                    </div>
-                  </button>
-                ))}
+                    </button>
+                  ))
+                )}
               </div>
               <Button
                 onClick={() => setStep(2)}
@@ -160,6 +183,22 @@ Telefone: ${formData.phone}`;
                     placeholder="seu@email.com"
                   />
                 </div>
+                
+                <div>
+                  <label className="text-sm font-medium">Barbeiro *</label>
+                  <select
+                    value={formData.barber}
+                    onChange={(e) => setFormData({ ...formData, barber: e.target.value })}
+                    className="w-full p-2 border rounded-lg mt-1"
+                  >
+                    <option value="">Escolha um barbeiro</option>
+                    {barbers.map((barber) => (
+                      <option key={barber.id} value={barber.name}>
+                        {barber.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
               <div className="flex gap-2">
                 <Button variant="outline" onClick={() => setStep(1)} className="flex-1">
@@ -167,7 +206,7 @@ Telefone: ${formData.phone}`;
                 </Button>
                 <Button
                   onClick={() => setStep(3)}
-                  disabled={!formData.name || !formData.phone}
+                  disabled={!formData.name || !formData.phone || !formData.barber}
                   className="flex-1"
                 >
                   Continuar
