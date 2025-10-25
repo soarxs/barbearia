@@ -57,6 +57,13 @@ export const bookingService = {
       const currentMinute = now.getMinutes();
       const minHour = isToday ? currentHour + 1 : BUSINESS_CONFIG.startHour;
       
+      // Debug: Log do horário atual
+      console.log('🕐 Debug Agendamento:');
+      console.log('Data selecionada:', date);
+      console.log('É hoje?', isToday);
+      console.log('Horário atual:', `${currentHour}:${currentMinute.toString().padStart(2, '0')}`);
+      console.log('Hora mínima permitida:', minHour);
+      
       for (let hour = BUSINESS_CONFIG.startHour; hour < BUSINESS_CONFIG.endHour; hour++) {
         // Pular horário de almoço
         if (hour >= BUSINESS_CONFIG.breakStart && hour < BUSINESS_CONFIG.breakEnd) {
@@ -65,11 +72,13 @@ export const bookingService = {
         
         // Pular horários passados
         if (hour < minHour) {
+          console.log(`❌ Horário ${hour}:00 pulado (menor que ${minHour})`);
           continue;
         }
         
         // Se for hoje e for o horário mínimo, verificar minutos
         if (isToday && hour === minHour && currentMinute > 30) {
+          console.log(`❌ Horário ${hour}:00 pulado (minutos: ${currentMinute})`);
           continue;
         }
         
@@ -78,7 +87,10 @@ export const bookingService = {
         const isAvailable = await this.isSlotAvailable(date, timeSlot, service, barber);
         
         if (isAvailable) {
+          console.log(`✅ Horário ${timeSlot} disponível`);
           slots.push(timeSlot);
+        } else {
+          console.log(`❌ Horário ${timeSlot} ocupado`);
         }
         
         // Adicionar horário de 30 minutos se couber
@@ -87,11 +99,15 @@ export const bookingService = {
           const isAvailable30 = await this.isSlotAvailable(date, timeSlot30, service, barber);
           
           if (isAvailable30) {
+            console.log(`✅ Horário ${timeSlot30} disponível`);
             slots.push(timeSlot30);
+          } else {
+            console.log(`❌ Horário ${timeSlot30} ocupado`);
           }
         }
       }
       
+      console.log('📋 Horários finais:', slots);
       return slots;
     } catch (error) {
       console.error('Erro ao gerar horários:', error);
