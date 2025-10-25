@@ -1,4 +1,6 @@
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Phone, Clock, MapPin, Star } from 'lucide-react';
 
 interface HeroProps {
   onBookingClick: () => void;
@@ -33,14 +35,55 @@ const Hero = ({ onBookingClick }: HeroProps) => {
             Agende seu horário com os melhores barbeiros da cidade.
           </p>
           
-          <Button 
-            onClick={onBookingClick}
-            size="lg"
-            className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold text-base sm:text-lg px-8 sm:px-12 py-5 sm:py-6 animate-scale-in"
-            style={{ boxShadow: 'var(--shadow-glow)' }}
-          >
-            Agendar Agora
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Button 
+              onClick={onBookingClick}
+              size="lg"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold text-base sm:text-lg px-8 sm:px-12 py-5 sm:py-6 animate-scale-in"
+              style={{ boxShadow: 'var(--shadow-glow)' }}
+            >
+              Agendar Agora
+            </Button>
+            
+            <Button 
+              variant="outline"
+              size="lg"
+              className="border-2 border-white text-white hover:bg-white hover:text-primary font-bold text-base sm:text-lg px-8 sm:px-12 py-5 sm:py-6"
+              onClick={() => window.open('https://wa.me/5511999999999?text=Olá! Gostaria de agendar um horário no BarberTime', '_blank')}
+            >
+              <Phone className="w-5 h-5 mr-2" />
+              WhatsApp
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Info Cards */}
+      <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 w-full max-w-4xl px-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card className="bg-white/90 backdrop-blur-sm border-white/20">
+            <CardContent className="p-4 text-center">
+              <Clock className="w-6 h-6 mx-auto mb-2 text-primary" />
+              <h3 className="font-semibold text-sm">Horário de Funcionamento</h3>
+              <p className="text-xs text-gray-600">Seg - Sex: 9h às 18h<br/>Sáb: 9h às 17h</p>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-white/90 backdrop-blur-sm border-white/20">
+            <CardContent className="p-4 text-center">
+              <MapPin className="w-6 h-6 mx-auto mb-2 text-primary" />
+              <h3 className="font-semibold text-sm">Localização</h3>
+              <p className="text-xs text-gray-600">Centro da cidade<br/>Fácil acesso</p>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-white/90 backdrop-blur-sm border-white/20">
+            <CardContent className="p-4 text-center">
+              <Star className="w-6 h-6 mx-auto mb-2 text-primary" />
+              <h3 className="font-semibold text-sm">Avaliação</h3>
+              <p className="text-xs text-gray-600">4.9/5 estrelas<br/>+500 clientes satisfeitos</p>
+            </CardContent>
+          </Card>
         </div>
       </div>
 

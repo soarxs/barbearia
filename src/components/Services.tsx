@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Clock, Star, Users, Phone } from 'lucide-react';
 import { getServices } from '@/lib/dataStore.js';
 import { useTenant } from '@/hooks/useTenant.js';
 const haircutImage = 'https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=800';
@@ -96,17 +99,49 @@ const Services = ({ onBookingClick }: ServicesProps) => {
                 </div>
               </div>
               <div className="p-4">
-                <h3 className="text-lg sm:text-xl font-bold mb-2">{service.title}</h3>
-                <p className="text-muted-foreground text-sm sm:text-base mb-4">{service.description}</p>
-                <Button 
-                  className="w-full"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onBookingClick(service.id);
-                  }}
-                >
-                  Agendar Agora
-                </Button>
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-lg sm:text-xl font-bold">{service.title}</h3>
+                  <Badge variant="secondary" className="text-xs">
+                    <Clock className="w-3 h-3 mr-1" />
+                    30min
+                  </Badge>
+                </div>
+                <p className="text-muted-foreground text-sm sm:text-base mb-3">{service.description}</p>
+                
+                <div className="flex items-center gap-4 text-xs text-gray-500 mb-3">
+                  <div className="flex items-center gap-1">
+                    <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                    <span>4.9</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Users className="w-3 h-3" />
+                    <span>+50 agendamentos</span>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Button 
+                    className="w-full"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onBookingClick(service.id);
+                    }}
+                  >
+                    Agendar Agora
+                  </Button>
+                  
+                  <Button 
+                    variant="outline"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      window.open(`https://wa.me/5511999999999?text=Olá! Gostaria de agendar ${service.title} no BarberTime`, '_blank');
+                    }}
+                    className="w-full"
+                  >
+                    <Phone className="w-4 h-4 mr-2" />
+                    WhatsApp
+                  </Button>
+                </div>
               </div>
             </div>
             ))

@@ -3,6 +3,9 @@ import AdminNavModern from './AdminNavModern';
 import DashboardModern from './DashboardModern';
 import AgendaModern from './AgendaModern';
 import ConfirmationsModern from './ConfirmationsModern';
+import ClientsModern from './ClientsModern';
+import ReportsModern from './ReportsModern';
+import SettingsModern from './SettingsModern';
 
 const AdminModern = () => {
   const [currentPage, setCurrentPage] = useState('dashboard');
@@ -16,26 +19,11 @@ const AdminModern = () => {
       case 'confirmacoes':
         return <ConfirmationsModern />;
       case 'clientes':
-        return (
-          <div className="p-6">
-            <h1 className="text-3xl font-bold text-gray-900">Clientes</h1>
-            <p className="text-gray-600">Gerenciamento de clientes em desenvolvimento...</p>
-          </div>
-        );
+        return <ClientsModern />;
       case 'relatorios':
-        return (
-          <div className="p-6">
-            <h1 className="text-3xl font-bold text-gray-900">Relatórios</h1>
-            <p className="text-gray-600">Relatórios e análises em desenvolvimento...</p>
-          </div>
-        );
+        return <ReportsModern />;
       case 'configuracoes':
-        return (
-          <div className="p-6">
-            <h1 className="text-3xl font-bold text-gray-900">Configurações</h1>
-            <p className="text-gray-600">Configurações do sistema em desenvolvimento...</p>
-          </div>
-        );
+        return <SettingsModern />;
       default:
         return <DashboardModern />;
     }
