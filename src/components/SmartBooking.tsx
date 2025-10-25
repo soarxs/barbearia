@@ -63,34 +63,54 @@ const TimeSlotsList = ({ date, service, barber, selectedTime, onTimeSelect }: {
   }
 
   return (
-    <div>
-      <Label>Horários Disponíveis *</Label>
-      <div className="mt-2 max-h-48 overflow-y-auto border rounded-lg">
+    <div className="space-y-4">
+      <h3 className="font-semibold text-center text-white mb-6">ESCOLHA O HORÁRIO</h3>
+      
+      <div className="space-y-3">
         {slots.length > 0 ? (
-          <div className="grid grid-cols-2 gap-1 p-2">
-            {slots.map((slot) => (
-              <button
-                key={slot.time}
-                type="button"
-                onClick={() => onTimeSelect(slot.time)}
-                className={`p-3 rounded border text-sm transition-colors ${
-                  selectedTime === slot.time
-                    ? 'border-primary bg-primary text-white'
-                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                }`}
-              >
-                <div className="flex items-center justify-center gap-2">
-                  <Clock className="w-4 h-4" />
-                  <span className="font-medium">{slot.display}</span>
+          slots.map((slot) => (
+            <div
+              key={slot.time}
+              className={`relative border-2 rounded-lg p-4 cursor-pointer transition-all ${
+                selectedTime === slot.time
+                  ? 'border-blue-500 bg-blue-50'
+                  : 'border-white hover:border-gray-300 hover:bg-gray-50'
+              }`}
+              onClick={() => onTimeSelect(slot.time)}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  {/* Ícone de navalha */}
+                  <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <div className="w-6 h-6 bg-gray-600 rounded-sm"></div>
+                  </div>
+                  
+                  {/* Texto do horário */}
+                  <div>
+                    <p className="text-2xl font-bold text-gray-900">{slot.display}</p>
+                    <p className="text-sm text-gray-500">Horário disponível</p>
+                  </div>
                 </div>
-              </button>
-            ))}
-          </div>
+                
+                {/* Indicador de seleção */}
+                {selectedTime === slot.time && (
+                  <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                    <div className="w-2 h-2 bg-white rounded-full"></div>
+                  </div>
+                )}
+              </div>
+              
+              {/* Decoração de fundo sutil */}
+              <div className="absolute inset-0 opacity-5 pointer-events-none">
+                <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-400 rounded-lg"></div>
+              </div>
+            </div>
+          ))
         ) : (
-          <div className="text-center py-8 text-gray-500">
-            <Clock className="w-8 h-8 mx-auto mb-2" />
-            <p className="text-sm">Não há horários disponíveis para esta data</p>
-            <p className="text-xs mt-1">Tente escolher outra data ou barbeiro</p>
+          <div className="text-center py-12 text-gray-500">
+            <Clock className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+            <p className="text-lg font-medium">Não há horários disponíveis</p>
+            <p className="text-sm mt-2">Tente escolher outra data ou barbeiro</p>
           </div>
         )}
       </div>
