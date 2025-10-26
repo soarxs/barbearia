@@ -28,7 +28,8 @@ import {
   Eye,
   Edit,
   Trash2,
-  MoreVertical
+  MoreVertical,
+  Scissors
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
@@ -326,19 +327,19 @@ const AgendaClean = () => {
   const cancelledCount = appointments.filter(a => a.status === 'cancelled').length;
 
   const renderAppointmentCard = (appointment: Appointment) => (
-    <Card key={appointment.id} className="hover:shadow-md transition-all duration-200 border-l-4 border-l-blue-500">
+    <Card key={appointment.id} className="hover:shadow-lg transition-all duration-200 border-l-4 border-l-blue-500 hover:border-l-blue-600">
       <CardContent className="p-4">
         <div className="flex justify-between items-start">
           <div className="flex-1">
             <div className="flex items-center space-x-3 mb-3">
-              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                <User className="w-5 h-5 text-blue-600" />
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-sm">
+                <User className="w-6 h-6 text-white" />
               </div>
-              <div>
+              <div className="flex-1">
                 <h3 className="font-semibold text-lg text-gray-900">{appointment.clientName || 'Cliente'}</h3>
-                <p className="text-sm text-gray-600">{appointment.barber}</p>
+                <p className="text-sm text-gray-600">com {appointment.barber}</p>
               </div>
-              <Badge className={`${getStatusColor(appointment.status)} border`}>
+              <Badge className={`${getStatusColor(appointment.status)} border shadow-sm`}>
                 <span className="flex items-center space-x-1">
                   {getStatusIcon(appointment.status)}
                   <span>{getStatusText(appointment.status)}</span>
@@ -346,23 +347,39 @@ const AgendaClean = () => {
               </Badge>
             </div>
             
-            <div className="grid grid-cols-2 gap-4 text-sm text-gray-600 mb-3">
-              <div className="flex items-center space-x-2">
-                <Clock className="w-4 h-4 text-gray-400" />
+            <div className="grid grid-cols-2 gap-4 text-sm mb-3">
+              <div className="flex items-center space-x-2 text-gray-600">
+                <div className="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center">
+                  <Clock className="w-3 h-3 text-gray-500" />
+                </div>
                 <span className="font-medium">{appointment.time}</span>
               </div>
-              <div className="flex items-center space-x-2">
-                <Phone className="w-4 h-4 text-gray-400" />
-                <span>{appointment.clientPhone || 'N/A'}</span>
+              <div className="flex items-center space-x-2 text-gray-600">
+                <div className="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center">
+                  <Phone className="w-3 h-3 text-gray-500" />
+                </div>
+                <span className="font-medium">{appointment.clientPhone || 'N/A'}</span>
               </div>
               <div className="col-span-2">
-                <span className="font-medium text-gray-700">Serviço:</span> 
-                <span className="ml-1">{appointment.service || 'N/A'}</span>
+                <div className="flex items-center space-x-2 text-gray-600">
+                  <div className="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center">
+                    <Scissors className="w-3 h-3 text-gray-500" />
+                  </div>
+                  <span className="font-medium text-gray-700">Serviço:</span> 
+                  <span className="text-gray-600">{appointment.service || 'N/A'}</span>
+                </div>
               </div>
               {appointment.notes && (
                 <div className="col-span-2">
-                  <span className="font-medium text-gray-700">Observações:</span> 
-                  <span className="ml-1 text-gray-600">{appointment.notes}</span>
+                  <div className="flex items-start space-x-2 text-gray-600">
+                    <div className="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center mt-0.5">
+                      <MessageSquare className="w-3 h-3 text-gray-500" />
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-700">Observações:</span> 
+                      <p className="text-gray-600 text-sm mt-1">{appointment.notes}</p>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
@@ -373,7 +390,7 @@ const AgendaClean = () => {
               value={appointment.status} 
               onValueChange={(value) => handleStatusChange(appointment.id, value)}
             >
-              <SelectTrigger className="w-32">
+              <SelectTrigger className="w-32 h-8 text-xs">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -389,7 +406,8 @@ const AgendaClean = () => {
                 <>
                   <Button
                     size="sm"
-                    className="bg-green-600 hover:bg-green-700 text-white"
+                    className="bg-green-600 hover:bg-green-700 text-white h-8 w-8 p-0"
+                    title="Confirmar"
                     onClick={() => {
                       setSelectedConfirmation(appointment);
                       setIsConfirmationDialogOpen(true);
@@ -400,7 +418,8 @@ const AgendaClean = () => {
                   <Button
                     size="sm"
                     variant="outline"
-                    className="text-red-600 border-red-600 hover:bg-red-50"
+                    className="text-red-600 border-red-600 hover:bg-red-50 h-8 w-8 p-0"
+                    title="Cancelar"
                     onClick={() => handleStatusChange(appointment.id, 'cancelled')}
                   >
                     <X className="w-3 h-3" />
@@ -412,7 +431,8 @@ const AgendaClean = () => {
                 size="sm"
                 variant="outline"
                 onClick={() => sendWhatsAppMessage(appointment.clientPhone, generateWhatsAppMessage(appointment))}
-                className="text-green-600 border-green-600 hover:bg-green-50"
+                className="text-green-600 border-green-600 hover:bg-green-50 h-8 w-8 p-0"
+                title="WhatsApp"
               >
                 <MessageSquare className="w-3 h-3" />
               </Button>
@@ -421,7 +441,8 @@ const AgendaClean = () => {
                 size="sm"
                 variant="outline"
                 onClick={() => handleSendReminder(appointment)}
-                className="text-blue-600 border-blue-600 hover:bg-blue-50"
+                className="text-blue-600 border-blue-600 hover:bg-blue-50 h-8 w-8 p-0"
+                title="Lembrete"
               >
                 <AlertTriangle className="w-3 h-3" />
               </Button>
@@ -636,39 +657,157 @@ const AgendaClean = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Calendar */}
             {viewMode === 'calendar' && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <CalendarIcon className="w-5 h-5 mr-2" />
-                    Calendário
+              <Card className="h-fit">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center justify-between">
+                    <span className="flex items-center">
+                      <CalendarIcon className="w-5 h-5 mr-2" />
+                      Calendário
+                    </span>
+                    <div className="flex items-center space-x-1">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setSelectedDate(new Date())}
+                        className="text-xs"
+                      >
+                        Hoje
+                      </Button>
+                    </div>
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-3">
                   <Calendar
                     mode="single"
                     selected={selectedDate}
                     onSelect={(date) => date && setSelectedDate(date)}
-                    className="rounded-md border"
+                    className="rounded-md border-0"
+                    classNames={{
+                      months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
+                      month: "space-y-4",
+                      caption: "flex justify-center pt-1 relative items-center",
+                      caption_label: "text-sm font-medium",
+                      nav: "space-x-1 flex items-center",
+                      nav_button: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
+                      nav_button_previous: "absolute left-1",
+                      nav_button_next: "absolute right-1",
+                      table: "w-full border-collapse space-y-1",
+                      head_row: "flex",
+                      head_cell: "text-muted-foreground rounded-md w-8 font-normal text-[0.8rem]",
+                      row: "flex w-full mt-2",
+                      cell: "text-center text-sm p-0 relative [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
+                      day: "h-8 w-8 p-0 font-normal aria-selected:opacity-100 hover:bg-accent hover:text-accent-foreground",
+                      day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
+                      day_today: "bg-accent text-accent-foreground",
+                      day_outside: "text-muted-foreground opacity-50",
+                      day_disabled: "text-muted-foreground opacity-50",
+                      day_range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
+                      day_hidden: "invisible",
+                    }}
                   />
+                  
+                  {/* Quick Date Selection */}
+                  <div className="mt-4 space-y-2">
+                    <p className="text-xs font-medium text-gray-600">Acesso Rápido:</p>
+                    <div className="grid grid-cols-2 gap-1">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          const today = new Date();
+                          setSelectedDate(today);
+                        }}
+                        className="text-xs h-7"
+                      >
+                        Hoje
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          const tomorrow = new Date();
+                          tomorrow.setDate(tomorrow.getDate() + 1);
+                          setSelectedDate(tomorrow);
+                        }}
+                        className="text-xs h-7"
+                      >
+                        Amanhã
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          const nextWeek = new Date();
+                          nextWeek.setDate(nextWeek.getDate() + 7);
+                          setSelectedDate(nextWeek);
+                        }}
+                        className="text-xs h-7"
+                      >
+                        Próxima Semana
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          const nextMonth = new Date();
+                          nextMonth.setMonth(nextMonth.getMonth() + 1);
+                          setSelectedDate(nextMonth);
+                        }}
+                        className="text-xs h-7"
+                      >
+                        Próximo Mês
+                      </Button>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             )}
 
             {/* Appointments List */}
             <div className={`${viewMode === 'calendar' ? 'lg:col-span-2' : 'col-span-full'} space-y-4`}>
-              <h2 className="text-xl font-semibold">
-                Agendamentos - {selectedDate.toLocaleDateString('pt-BR')}
-              </h2>
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold">
+                  Agendamentos - {selectedDate.toLocaleDateString('pt-BR')}
+                </h2>
+                <div className="flex items-center space-x-2">
+                  <Badge variant="outline" className="text-xs">
+                    {filteredAppointments.length} agendamento(s)
+                  </Badge>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setIsAddDialogOpen(true)}
+                    className="text-xs"
+                  >
+                    <Plus className="w-3 h-3 mr-1" />
+                    Novo
+                  </Button>
+                </div>
+              </div>
               
               {filteredAppointments.length === 0 ? (
-                <Card>
-                  <CardContent className="p-8 text-center">
-                    <CalendarIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-500">Nenhum agendamento encontrado para esta data</p>
+                <Card className="border-dashed">
+                  <CardContent className="p-12 text-center">
+                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <CalendarIcon className="w-8 h-8 text-gray-400" />
+                    </div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">Nenhum agendamento</h3>
+                    <p className="text-gray-500 mb-4">
+                      Não há agendamentos para {selectedDate.toLocaleDateString('pt-BR')}
+                    </p>
+                    <Button
+                      onClick={() => setIsAddDialogOpen(true)}
+                      className="bg-blue-600 hover:bg-blue-700"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Agendar Cliente
+                    </Button>
                   </CardContent>
                 </Card>
               ) : (
-                filteredAppointments.map(renderAppointmentCard)
+                <div className="space-y-3">
+                  {filteredAppointments.map(renderAppointmentCard)}
+                </div>
               )}
             </div>
           </div>
