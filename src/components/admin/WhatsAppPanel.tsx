@@ -17,7 +17,7 @@ import {
   Plus,
   Settings,
   History,
-  Template,
+  FileText,
   Bell,
   CheckCircle,
   XCircle,
@@ -422,7 +422,7 @@ const WhatsAppPanel = () => {
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
             <span className="flex items-center">
-              <Template className="w-5 h-5 mr-2" />
+              <FileText className="w-5 h-5 mr-2" />
               Templates de Mensagens
             </span>
             <Dialog open={isTemplateDialogOpen} onOpenChange={setIsTemplateDialogOpen}>
