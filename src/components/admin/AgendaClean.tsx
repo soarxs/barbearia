@@ -142,7 +142,30 @@ const AgendaInteligente = () => {
   };
 
   const getTimeSlots = (): TimeSlot[] => {
-    return workingHours.map(time => {
+    // Verificar se é hoje para aplicar margem de 5 minutos
+    const today = new Date().toISOString().split('T')[0];
+    const selectedDateStr = selectedDate.toISOString().split('T')[0];
+    const isToday = selectedDateStr === today;
+    
+    let filteredHours = workingHours;
+    
+    // Se for hoje, filtrar horários passados (com margem de 5 minutos)
+    if (isToday) {
+      const now = new Date();
+      const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+      
+      filteredHours = workingHours.filter(time => {
+        const [hours, minutes] = time.split(':').map(Number);
+        const slotTime = hours * 60 + minutes;
+        const [currentHours, currentMinutes] = currentTime.split(':').map(Number);
+        const currentSlotTime = currentHours * 60 + currentMinutes;
+        
+        // Margem de 5 minutos
+        return slotTime > (currentSlotTime + 5);
+      });
+    }
+    
+    return filteredHours.map(time => {
       const appointment = appointments.find(apt => apt.time === time);
       return {
         time,
