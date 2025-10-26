@@ -38,7 +38,7 @@ interface Appointment {
   barber: string;
   date: Date | string;
   time: string;
-  status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
+  status: 'agendado' | 'concluido';
   notes?: string;
 }
 
@@ -161,7 +161,7 @@ const AgendaInteligente = () => {
         barber: selectedBarber,
         date: selectedDate.toISOString().split('T')[0],
         time: newAppointment.time,
-        status: 'confirmed',
+        status: 'agendado',
         notes: newAppointment.notes
       };
 
@@ -203,30 +203,24 @@ const AgendaInteligente = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'confirmed': return 'bg-green-100 text-green-800 border-green-200';
-      case 'pending': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'completed': return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'cancelled': return 'bg-red-100 text-red-800 border-red-200';
+      case 'agendado': return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'concluido': return 'bg-green-100 text-green-800 border-green-200';
       default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'confirmed': return <CheckCircle className="w-4 h-4" />;
-      case 'pending': return <Clock className="w-4 h-4" />;
-      case 'completed': return <CheckCircle className="w-4 h-4" />;
-      case 'cancelled': return <XCircle className="w-4 h-4" />;
+      case 'agendado': return <Clock className="w-4 h-4" />;
+      case 'concluido': return <CheckCircle className="w-4 h-4" />;
       default: return <Clock className="w-4 h-4" />;
     }
   };
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'confirmed': return 'Confirmado';
-      case 'pending': return 'Pendente';
-      case 'completed': return 'Concluído';
-      case 'cancelled': return 'Cancelado';
+      case 'agendado': return 'Agendado';
+      case 'concluido': return 'Concluído';
       default: return status;
     }
   };
@@ -402,13 +396,13 @@ const AgendaInteligente = () => {
                           </Badge>
                           
                           <div className="flex space-x-1">
-                            {appointment.status === 'pending' && (
+                            {appointment.status === 'agendado' && (
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => handleStatusChange(appointment.id, 'confirmed')}
+                                onClick={() => handleStatusChange(appointment.id, 'concluido')}
                                 className="text-green-600 hover:text-green-700"
-                                title="Confirmar"
+                                title="Marcar como Concluído"
                               >
                                 <CheckCircle className="w-4 h-4" />
                               </Button>

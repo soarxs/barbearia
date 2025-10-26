@@ -62,10 +62,31 @@ export const unifiedBookingService = {
       const { data, error } = await query;
       if (error) throw error;
 
-      return data || [];
+      // Converter status antigos para novos
+      const convertedData = data?.map(apt => ({
+        ...apt,
+        status: this.convertStatus(apt.status)
+      })) || [];
+
+      return convertedData;
     } catch (error) {
       console.error('Erro ao buscar agendamentos:', error);
       return [];
+    }
+  },
+
+  // Converter status antigos para novos (sistema simplificado)
+  convertStatus(oldStatus) {
+    switch (oldStatus) {
+      case 'pending':
+      case 'confirmed':
+        return 'agendado';
+      case 'completed':
+        return 'concluido';
+      case 'cancelled':
+        return 'agendado'; // Cancelados voltam para agendado
+      default:
+        return 'agendado';
     }
   },
 
@@ -94,7 +115,7 @@ export const unifiedBookingService = {
           barber: appointmentData.barber,
           date: appointmentData.date,
           time: appointmentData.time,
-          status: appointmentData.status || 'pending',
+          status: 'agendado', // Sempre começa como agendado
           notes: appointmentData.notes || null,
           barbershop_id: appointmentData.barbershop_id || null
         }])
@@ -117,7 +138,7 @@ export const unifiedBookingService = {
         .eq('date', date)
         .eq('time', time)
         .eq('barber', barber)
-        .in('status', ['pending', 'confirmed']);
+        .eq('status', 'agendado'); // Apenas agendados ocupam horário
 
       if (error) throw error;
       return !data || data.length === 0;
@@ -176,7 +197,7 @@ export const unifiedBookingService = {
         .select('time')
         .eq('date', date)
         .eq('barber', barber)
-        .in('status', ['pending', 'confirmed']);
+        .eq('status', 'agendado');
 
       const takenTimes = new Set(existingAppointments?.map(apt => apt.time) || []);
       

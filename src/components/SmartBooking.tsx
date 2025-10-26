@@ -222,7 +222,7 @@ const SmartBooking = ({ onClose, selectedService }: SmartBookingProps) => {
         date: formData.date,
         time: formData.time,
         notes: formData.notes,
-        status: 'pending'
+        status: 'agendado'
       };
 
       await unifiedBookingService.createAppointment(appointmentData);
