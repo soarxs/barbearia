@@ -142,10 +142,22 @@ const AgendaInteligente = () => {
   };
 
   const getTimeSlots = (): TimeSlot[] => {
-    // Verificar se é hoje para aplicar margem de 5 minutos
     const today = new Date().toISOString().split('T')[0];
     const selectedDateStr = selectedDate.toISOString().split('T')[0];
     const isToday = selectedDateStr === today;
+    const isPast = selectedDateStr < today;
+    
+    // Se for dia passado, não mostrar horários disponíveis
+    if (isPast) {
+      return workingHours.map(time => {
+        const appointment = appointments.find(apt => apt.time === time);
+        return {
+          time,
+          available: false, // Sempre indisponível para dias passados
+          appointment
+        };
+      });
+    }
     
     let filteredHours = workingHours;
     
