@@ -4,158 +4,38 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { 
-  Calendar, 
-  Clock, 
-  User, 
-  Phone, 
-  MessageSquare,
-  CheckCircle,
-  XCircle
-} from 'lucide-react';
+import { Calendar, Clock, User, Phone } from 'lucide-react';
 import { unifiedBookingService } from '@/services/unifiedBookingService';
 import { toast } from 'sonner';
 
-// Componente para lista de horários
-const TimeSlotsList = ({ date, service, barber, selectedTime, onTimeSelect }: {
-  date: string;
-  service: string;
-  barber: string;
-  selectedTime: string;
-  onTimeSelect: (time: string) => void;
-}) => {
-  const [slots, setSlots] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const loadSlots = async () => {
-      try {
-        setLoading(true);
-        const availableSlots = await unifiedBookingService.getAvailableTimeSlots(date, barber);
-        setSlots(availableSlots.map(time => ({
-          time,
-          label: time,
-          display: time
-        })));
-      } catch (error) {
-        console.error('Erro ao carregar horários:', error);
-        setSlots([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadSlots();
-  }, [date, service, barber]);
-
-  if (loading) {
-    return (
-      <div>
-        <Label>Horários Disponíveis *</Label>
-        <div className="mt-2 max-h-48 overflow-y-auto border rounded-lg">
-          <div className="text-center py-8 text-gray-500">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto mb-2"></div>
-            <p className="text-sm">Carregando horários...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-4">
-      <h3 className="font-semibold text-center text-white mb-6">ESCOLHA O HORÁRIO</h3>
-      
-      <div className="space-y-3">
-        {slots.length > 0 ? (
-          slots.map((slot) => (
-            <div
-              key={slot.time}
-              className={`relative border-2 rounded-lg p-4 cursor-pointer transition-all ${
-                selectedTime === slot.time
-                  ? 'border-blue-500 bg-blue-50'
-                  : 'border-white hover:border-gray-300 hover:bg-gray-50'
-              }`}
-              onClick={() => onTimeSelect(slot.time)}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  {/* Ícone de navalha */}
-                  <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
-                    <div className="w-6 h-6 bg-gray-600 rounded-sm"></div>
-                  </div>
-                  
-                  {/* Texto do horário */}
-                  <div>
-                    <p className="text-2xl font-bold text-gray-900">{slot.display}</p>
-                    <p className="text-sm text-gray-500">Horário disponível</p>
-                  </div>
-                </div>
-                
-                {/* Indicador de seleção */}
-                {selectedTime === slot.time && (
-                  <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-                    <div className="w-2 h-2 bg-white rounded-full"></div>
-                  </div>
-                )}
-              </div>
-              
-              {/* Decoração de fundo sutil */}
-              <div className="absolute inset-0 opacity-5 pointer-events-none">
-                <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-400 rounded-lg"></div>
-              </div>
-            </div>
-          ))
-        ) : (
-          <div className="text-center py-12 text-gray-500">
-            <Clock className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-            <p className="text-lg font-medium">Não há horários disponíveis</p>
-            <p className="text-sm mt-2">Tente escolher outra data ou barbeiro</p>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
 interface SmartBookingProps {
   onClose: () => void;
-  selectedService?: string;
 }
 
-const SmartBooking = ({ onClose, selectedService }: SmartBookingProps) => {
+export const SmartBooking: React.FC<SmartBookingProps> = ({ onClose }) => {
   const [step, setStep] = useState(1);
+  const [loading, setLoading] = useState(true);
   const [services, setServices] = useState<any[]>([]);
   const [barbers, setBarbers] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
-    name: '',
-    phone: '',
-    email: '',
-    service: selectedService || '',
+    service: '',
     barber: '',
     date: '',
     time: '',
+    name: '',
+    phone: '',
+    email: '',
     notes: ''
   });
-
-  // Horários de funcionamento
-  const businessHours = {
-    start: 8, // 8:00
-    end: 18,  // 18:00
-    breakStart: 12, // 12:00
-    breakEnd: 14    // 14:00
-  };
 
   useEffect(() => {
     const loadData = async () => {
       try {
         setLoading(true);
         const [servicesData, barbersData] = await Promise.all([
-          serviceService.getAll(),
-          barberService.getAll()
+          unifiedBookingService.getActiveServices(),
+          unifiedBookingService.getActiveBarbers()
         ]);
-        
         setServices(servicesData);
         setBarbers(barbersData);
       } catch (error) {
@@ -164,49 +44,15 @@ const SmartBooking = ({ onClose, selectedService }: SmartBookingProps) => {
         setLoading(false);
       }
     };
-
     loadData();
   }, []);
 
-  // Gerar horários disponíveis baseado na data selecionada
-  const getAvailableTimeSlots = async (selectedDate: string, service: string, barber: string) => {
-    try {
-      const slots = await unifiedBookingService.getAvailableTimeSlots(selectedDate, barber);
-      return slots.map(time => ({
-        time,
-        label: time,
-        display: time
-      }));
-    } catch (error) {
-      console.error('Erro ao buscar horários:', error);
-      return [];
-    }
-  };
-
-  // Gerar datas disponíveis (próximos 30 dias)
-  const getAvailableDates = () => {
-    const dates = [];
-    const today = new Date();
-    
-    for (let i = 0; i < 30; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() + i);
-      
-      // Pular domingos (se quiser)
-      if (date.getDay() === 0) continue;
-      
-      dates.push({
-        value: date.toISOString().split('T')[0],
-        label: date.toLocaleDateString('pt-BR', { 
-          weekday: 'long', 
-          day: '2-digit', 
-          month: '2-digit' 
-        })
-      });
-    }
-    
-    return dates;
-  };
+  const timeSlots = [
+    '08:00', '08:30', '09:00', '09:30', '10:00', '10:30',
+    '11:00', '11:30', '12:00', '12:30', '13:00', '13:30',
+    '14:00', '14:30', '15:00', '15:30', '16:00', '16:30',
+    '17:00', '17:30', '18:00', '18:30', '19:00', '19:30'
+  ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -224,8 +70,6 @@ const SmartBooking = ({ onClose, selectedService }: SmartBookingProps) => {
       };
 
       await unifiedBookingService.createAppointment(appointmentData);
-      
-      // Mostrar sucesso
       toast.success('Agendamento realizado com sucesso!');
       onClose();
       
@@ -233,46 +77,6 @@ const SmartBooking = ({ onClose, selectedService }: SmartBookingProps) => {
       console.error('Erro ao criar agendamento:', error);
       toast.error('Erro ao criar agendamento: ' + error.message);
     }
-  };
-
-  const getMinDate = () => {
-    const today = new Date();
-    return today.toISOString().split('T')[0];
-  };
-
-  // Função para gerar opções de data
-  const getDateOptions = () => {
-    const today = new Date();
-    const options = [];
-    
-    // Hoje
-    options.push({
-      value: today.toISOString().split('T')[0],
-      label: 'Hoje',
-      description: today.toLocaleDateString('pt-BR', { 
-        day: '2-digit', 
-        month: 'long', 
-        year: 'numeric' 
-      })
-    });
-    
-    // Próximos 3 dias
-    for (let i = 1; i <= 3; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() + i);
-      
-      options.push({
-        value: date.toISOString().split('T')[0],
-        label: date.toLocaleDateString('pt-BR', { weekday: 'long' }),
-        description: date.toLocaleDateString('pt-BR', { 
-          day: '2-digit', 
-          month: 'long', 
-          year: 'numeric' 
-        })
-      });
-    }
-    
-    return options;
   };
 
   if (loading) {
@@ -292,23 +96,13 @@ const SmartBooking = ({ onClose, selectedService }: SmartBookingProps) => {
         <CardHeader className="text-center">
           <CardTitle className="flex items-center justify-center gap-2">
             <Calendar className="w-5 h-5" />
-            Agendamento BarberTime
+            Agendamento
           </CardTitle>
-          <div className="flex justify-center gap-2 mt-2">
-            {[1, 2, 3].map((stepNum) => (
-              <div
-                key={stepNum}
-                className={`w-2 h-2 rounded-full ${
-                  step >= stepNum ? 'bg-primary' : 'bg-gray-300'
-                }`}
-              />
-            ))}
-          </div>
         </CardHeader>
 
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Passo 1: Escolher Serviço */}
+            {/* Passo 1: Serviço */}
             {step === 1 && (
               <div className="space-y-4">
                 <h3 className="font-semibold">Escolha o Serviço</h3>
@@ -317,12 +111,11 @@ const SmartBooking = ({ onClose, selectedService }: SmartBookingProps) => {
                     <button
                       key={service.id}
                       type="button"
-                      onClick={() => setFormData({ ...formData, service: service.name })}
-                      className={`p-3 rounded-lg border text-left transition-colors ${
-                        formData.service === service.name
-                          ? 'border-primary bg-primary/10'
-                          : 'border-gray-200 hover:border-gray-300'
-                      }`}
+                      onClick={() => {
+                        setFormData({ ...formData, service: service.name });
+                        setStep(2);
+                      }}
+                      className="p-3 rounded-lg border text-left transition-colors hover:border-primary"
                     >
                       <div className="flex justify-between items-center">
                         <div>
@@ -334,134 +127,81 @@ const SmartBooking = ({ onClose, selectedService }: SmartBookingProps) => {
                     </button>
                   ))}
                 </div>
-                <Button
-                  type="button"
-                  onClick={() => setStep(2)}
-                  disabled={!formData.service}
-                  className="w-full"
-                >
-                  Continuar
+              </div>
+            )}
+
+            {/* Passo 2: Barbeiro */}
+            {step === 2 && (
+              <div className="space-y-4">
+                <h3 className="font-semibold">Escolha o Barbeiro</h3>
+                <div className="grid gap-3">
+                  {barbers.map((barber) => (
+                    <button
+                      key={barber.id}
+                      type="button"
+                      onClick={() => {
+                        setFormData({ ...formData, barber: barber.name });
+                        setStep(3);
+                      }}
+                      className="p-3 rounded-lg border text-left transition-colors hover:border-primary"
+                    >
+                      <div className="flex items-center gap-3">
+                        <User className="w-5 h-5" />
+                        <span className="font-medium">{barber.name}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+                <Button type="button" onClick={() => setStep(1)} variant="outline">
+                  Voltar
                 </Button>
               </div>
             )}
 
-            {/* Passo 2: Escolher Data */}
-            {step === 2 && (
-              <div className="space-y-4">
-                <h3 className="font-semibold text-center text-white mb-6">ESCOLHA O DIA</h3>
-                
-                {/* Opções de Data */}
-                <div className="space-y-3">
-                  {getDateOptions().map((dateOption) => (
-                    <div
-                      key={dateOption.value}
-                      className={`border rounded-lg p-4 cursor-pointer transition-all ${
-                        formData.date === dateOption.value
-                          ? 'border-blue-500 bg-blue-50'
-                          : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                      }`}
-                      onClick={() => setFormData({ ...formData, date: dateOption.value, time: '' })}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                            <Calendar className="w-4 h-4 text-blue-600" />
-                          </div>
-                          <div>
-                            <p className="font-medium text-gray-900">{dateOption.label}</p>
-                            <p className="text-sm text-gray-500">{dateOption.description}</p>
-                          </div>
-                        </div>
-                        {formData.date === dateOption.value && (
-                          <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-                            <div className="w-2 h-2 bg-white rounded-full"></div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Mostrar horários disponíveis se data selecionada */}
-                {formData.date && (
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                    <h4 className="font-medium text-blue-900 mb-2">Horários Disponíveis:</h4>
-                    <p className="text-sm text-blue-800">
-                      {formData.date === new Date().toISOString().split('T')[0] 
-                        ? 'Hoje - apenas horários futuros disponíveis'
-                        : 'Todos os horários de funcionamento disponíveis'
-                      }
-                    </p>
-                  </div>
-                )}
-                
-                <div className="flex gap-2">
-                  <Button type="button" variant="outline" onClick={() => setStep(1)} className="flex-1">
-                    Voltar
-                  </Button>
-                  <Button
-                    type="button"
-                    onClick={() => setStep(3)}
-                    disabled={!formData.date}
-                    className="flex-1"
-                  >
-                    Continuar
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {/* Passo 3: Escolher Horário */}
+            {/* Passo 3: Data e Horário */}
             {step === 3 && (
               <div className="space-y-4">
-                {/* Lista de Horários Disponíveis */}
-                {formData.date && formData.service && (
-                  <TimeSlotsList 
-                    date={formData.date}
-                    service={formData.service}
-                    barber={formData.barber}
-                    selectedTime={formData.time}
-                    onTimeSelect={(time) => setFormData({ ...formData, time })}
-                  />
-                )}
-
-                {/* Informações do Agendamento */}
-                {formData.date && formData.time && (
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                    <h4 className="font-medium text-blue-900 mb-2">Resumo do Agendamento:</h4>
-                    <div className="space-y-1 text-sm text-blue-800">
-                      <div className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4" />
-                        <span>
-                          {new Date(formData.date + 'T00:00:00').toLocaleDateString('pt-BR', { 
-                            weekday: 'long', 
-                            day: '2-digit', 
-                            month: 'long',
-                            year: 'numeric'
-                          })}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Clock className="w-4 h-4" />
-                        <span>{formData.time}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <User className="w-4 h-4" />
-                        <span>{formData.service}</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
+                <h3 className="font-semibold">Escolha Data e Horário</h3>
                 
+                <div className="space-y-2">
+                  <Label htmlFor="date">Data</Label>
+                  <Input
+                    id="date"
+                    type="date"
+                    value={formData.date}
+                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                    min={new Date().toISOString().split('T')[0]}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Horário</Label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {timeSlots.map((time) => (
+                      <button
+                        key={time}
+                        type="button"
+                        onClick={() => setFormData({ ...formData, time })}
+                        className={`p-2 rounded border text-sm ${
+                          formData.time === time 
+                            ? 'border-primary bg-primary/10' 
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        {time}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 <div className="flex gap-2">
-                  <Button type="button" variant="outline" onClick={() => setStep(2)} className="flex-1">
+                  <Button type="button" onClick={() => setStep(2)} variant="outline">
                     Voltar
                   </Button>
-                  <Button
-                    type="button"
+                  <Button 
+                    type="button" 
                     onClick={() => setStep(4)}
-                    disabled={!formData.time}
-                    className="flex-1"
+                    disabled={!formData.date || !formData.time}
                   >
                     Continuar
                   </Button>
@@ -469,84 +209,63 @@ const SmartBooking = ({ onClose, selectedService }: SmartBookingProps) => {
               </div>
             )}
 
-            {/* Passo 4: Dados Pessoais e Barbeiro */}
+            {/* Passo 4: Dados Pessoais */}
             {step === 4 && (
               <div className="space-y-4">
                 <h3 className="font-semibold">Seus Dados</h3>
-                <div className="space-y-3">
-                  <div>
-                    <Label htmlFor="name">Nome Completo *</Label>
-                    <Input
-                      id="name"
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="phone">Telefone *</Label>
-                    <Input
-                      id="phone"
-                      value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="barber">Barbeiro *</Label>
-                    <select
-                      id="barber"
-                      value={formData.barber}
-                      onChange={(e) => setFormData({ ...formData, barber: e.target.value })}
-                      className="w-full p-2 border rounded-lg"
-                      required
-                    >
-                      <option value="">Escolha um barbeiro</option>
-                      {barbers.map((barber) => (
-                        <option key={barber.id} value={barber.name}>
-                          {barber.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
                 
+                <div className="space-y-2">
+                  <Label htmlFor="name">Nome</Label>
+                  <Input
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Telefone</Label>
+                  <Input
+                    id="phone"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email (opcional)</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="notes">Observações (opcional)</Label>
+                  <Input
+                    id="notes"
+                    value={formData.notes}
+                    onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                  />
+                </div>
+
                 <div className="flex gap-2">
-                  <Button type="button" variant="outline" onClick={() => setStep(3)} className="flex-1">
+                  <Button type="button" onClick={() => setStep(3)} variant="outline">
                     Voltar
                   </Button>
-                  <Button
-                    type="submit"
-                    disabled={!formData.name || !formData.phone || !formData.barber}
-                    className="flex-1"
-                  >
+                  <Button type="submit" disabled={!formData.name || !formData.phone}>
                     Confirmar Agendamento
                   </Button>
                 </div>
               </div>
             )}
-
-            {/* Botão Fechar */}
-            <div className="flex justify-center">
-              <Button type="button" variant="outline" onClick={onClose}>
-                Fechar
-              </Button>
-            </div>
           </form>
         </CardContent>
       </Card>
     </div>
   );
 };
-
-export default SmartBooking;
