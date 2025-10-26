@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getBarbers, addBarber, getServices, addService, updateService, deleteService, getSchedule, setSchedule } from '@/lib/dataStore.js';
+import { unifiedBookingService } from '@/services/unifiedBookingService';
 import { useTenant } from '@/hooks/useTenant.js';
 import { toast } from 'sonner';
 
@@ -39,16 +39,22 @@ function Config() {
         setLoading(true);
         
         // Carregar barbeiros
-        const barbersData = await getBarbers(tenant.barbershop.id);
+        const barbersData = await unifiedBookingService.getActiveBarbers();
         setBarbers(barbersData || []);
         
         // Carregar serviços
-        const servicesData = await getServices(tenant.barbershop.id);
+        const servicesData = await unifiedBookingService.getActiveServices();
         setServices(servicesData || []);
         
-        // Carregar configuração de horários
-        const scheduleData = await getSchedule(tenant.barbershop.id);
-        setScheduleState(scheduleData);
+        // Carregar configuração de horários (usar padrão por enquanto)
+        setScheduleState({
+          workingDays: [1,2,3,4,5,6],
+          open: '08:00',
+          close: '20:00',
+          lunchStart: '12:00',
+          lunchEnd: '13:00',
+          stepMinutes: 30,
+        });
         
       } catch (error) {
         console.error('Erro ao carregar dados:', error);
@@ -62,86 +68,28 @@ function Config() {
   }, [tenant]);
 
   const addBarberHandler = async () => {
-    if (!barberName.trim()) return;
-    if (!tenant?.barbershop?.id) return;
-    
-    try {
-      const newBarber = await addBarber(tenant.barbershop.id, {
-        name: barberName.trim()
-      });
-      setBarbers(prev => [...prev, newBarber]);
-      setBarberName('');
-      toast.success('Barbeiro adicionado!');
-    } catch (error) {
-      console.error('Erro ao adicionar barbeiro:', error);
-      toast.error('Erro ao adicionar barbeiro');
-    }
+    // TODO: Implementar usando unifiedBookingService
+    toast.info('Funcionalidade em desenvolvimento');
   };
 
   const addServiceHandler = async () => {
-    if (!serviceName.trim() || !String(servicePrice).trim()) return;
-    if (!tenant?.barbershop?.id) return;
-    
-    try {
-      const newService = await addService(tenant.barbershop.id, {
-        name: serviceName.trim(),
-        price: Number(servicePrice),
-        description: serviceDesc,
-        duration_minutes: 30
-      });
-      setServices(prev => [...prev, newService]);
-      setServiceName('');
-      setServicePrice('');
-      setServiceDesc('');
-      setServiceImage('');
-      toast.success('Serviço adicionado!');
-    } catch (error) {
-      console.error('Erro ao adicionar serviço:', error);
-      toast.error('Erro ao adicionar serviço');
-    }
+    // TODO: Implementar usando unifiedBookingService
+    toast.info('Funcionalidade em desenvolvimento');
   };
 
   const removeServiceHandler = async (id) => {
-    try {
-      await deleteService(id);
-      setServices(prev => prev.filter(s => s.id !== id));
-      toast.success('Serviço removido!');
-    } catch (error) {
-      console.error('Erro ao remover serviço:', error);
-      toast.error('Erro ao remover serviço');
-    }
+    // TODO: Implementar usando unifiedBookingService
+    toast.info('Funcionalidade em desenvolvimento');
   };
 
   const toggleDay = async (dayNum) => {
-    if (!tenant?.barbershop?.id) return;
-    
-    const exists = schedule.workingDays.includes(dayNum);
-    const wd = exists ? schedule.workingDays.filter(d => d !== dayNum) : [...schedule.workingDays, dayNum];
-    const cfg = { ...schedule, workingDays: wd.sort((a,b)=>a-b) };
-    
-    try {
-      await setSchedule(tenant.barbershop.id, cfg);
-      setScheduleState(cfg);
-      toast.success('Configuração atualizada!');
-    } catch (error) {
-      console.error('Erro ao atualizar configuração:', error);
-      toast.error('Erro ao atualizar configuração');
-    }
+    // TODO: Implementar usando unifiedBookingService
+    toast.info('Funcionalidade em desenvolvimento');
   };
 
   const onScheduleChange = async (key, value) => {
-    if (!tenant?.barbershop?.id) return;
-    
-    const cfg = { ...schedule, [key]: value };
-    
-    try {
-      await setSchedule(tenant.barbershop.id, cfg);
-      setScheduleState(cfg);
-      toast.success('Configuração atualizada!');
-    } catch (error) {
-      console.error('Erro ao atualizar configuração:', error);
-      toast.error('Erro ao atualizar configuração');
-    }
+    // TODO: Implementar usando unifiedBookingService
+    toast.info('Funcionalidade em desenvolvimento');
   };
 
   if (loading) {

@@ -171,7 +171,7 @@ const SmartBooking = ({ onClose, selectedService }: SmartBookingProps) => {
   // Gerar horários disponíveis baseado na data selecionada
   const getAvailableTimeSlots = async (selectedDate: string, service: string, barber: string) => {
     try {
-      const slots = await bookingService.getAvailableSlots(selectedDate, service, barber);
+      const slots = await unifiedBookingService.getAvailableTimeSlots(selectedDate, barber);
       return slots.map(time => ({
         time,
         label: time,
