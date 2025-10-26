@@ -230,7 +230,29 @@ const AgendaClean = () => {
                 mode="single"
                 selected={selectedDate}
                 onSelect={(date) => date && setSelectedDate(date)}
-                className="rounded-md"
+                className="rounded-md border-0"
+                classNames={{
+                  months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
+                  month: "space-y-4",
+                  caption: "flex justify-center pt-1 relative items-center",
+                  caption_label: "text-sm font-medium",
+                  nav: "space-x-1 flex items-center",
+                  nav_button: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
+                  nav_button_previous: "absolute left-1",
+                  nav_button_next: "absolute right-1",
+                  table: "w-full border-collapse space-y-1",
+                  head_row: "flex",
+                  head_cell: "text-muted-foreground rounded-md w-8 font-normal text-[0.8rem]",
+                  row: "flex w-full mt-2",
+                  cell: "text-center text-sm p-0 relative [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
+                  day: "h-8 w-8 p-0 font-normal aria-selected:opacity-100 hover:bg-accent hover:text-accent-foreground",
+                  day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
+                  day_today: "bg-accent text-accent-foreground",
+                  day_outside: "text-muted-foreground opacity-50",
+                  day_disabled: "text-muted-foreground opacity-50",
+                  day_range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
+                  day_hidden: "invisible",
+                }}
               />
             </CardContent>
           </Card>
@@ -250,13 +272,15 @@ const AgendaClean = () => {
               </div>
 
               {appointments.length === 0 ? (
-                <div className="text-center py-8">
-                  <CalendarIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <CalendarIcon className="w-8 h-8 text-blue-600" />
+                  </div>
                   <h3 className="text-lg font-medium text-gray-900 mb-2">
                     Nenhum agendamento
                   </h3>
-                  <p className="text-gray-500 mb-4">
-                    Não há agendamentos para este dia
+                  <p className="text-gray-500 mb-6">
+                    Não há agendamentos para {selectedDate.toLocaleDateString('pt-BR')}
                   </p>
                   <Button
                     onClick={() => setIsAddDialogOpen(true)}
@@ -269,62 +293,70 @@ const AgendaClean = () => {
               ) : (
                 <div className="space-y-3">
                   {appointments.map((appointment) => (
-                    <div
-                      key={appointment.id}
-                      className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
-                    >
-                      <div className="flex items-center space-x-4">
-                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                          <User className="w-5 h-5 text-blue-600" />
-                        </div>
-                        <div>
-                          <h3 className="font-medium">{appointment.clientName}</h3>
-                          <div className="flex items-center space-x-4 text-sm text-gray-600">
-                            <span className="flex items-center">
-                              <Clock className="w-4 h-4 mr-1" />
-                              {appointment.time}
-                            </span>
-                            <span className="flex items-center">
-                              <Scissors className="w-4 h-4 mr-1" />
-                              {appointment.service}
-                            </span>
-                            <span className="flex items-center">
-                              <User className="w-4 h-4 mr-1" />
-                              {appointment.barber}
-                            </span>
+                    <Card key={appointment.id} className="hover:shadow-md transition-shadow">
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-4">
+                            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
+                              {appointment.clientName.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                              <h3 className="font-semibold text-gray-900">{appointment.clientName}</h3>
+                              <div className="flex items-center space-x-4 text-sm text-gray-600 mt-1">
+                                <span className="flex items-center">
+                                  <Clock className="w-4 h-4 mr-1" />
+                                  {appointment.time}
+                                </span>
+                                <span className="flex items-center">
+                                  <Scissors className="w-4 h-4 mr-1" />
+                                  {appointment.service}
+                                </span>
+                                <span className="flex items-center">
+                                  <User className="w-4 h-4 mr-1" />
+                                  {appointment.barber}
+                                </span>
+                              </div>
+                              {appointment.notes && (
+                                <p className="text-sm text-gray-500 mt-1 italic">
+                                  "{appointment.notes}"
+                                </p>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="flex items-center space-x-3">
+                            <Badge className={`${getStatusColor(appointment.status)} flex items-center space-x-1`}>
+                              {getStatusIcon(appointment.status)}
+                              <span>{getStatusText(appointment.status)}</span>
+                            </Badge>
+
+                            <div className="flex space-x-1">
+                              {appointment.status === 'pending' && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleStatusChange(appointment.id, 'confirmed')}
+                                  className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                                  title="Confirmar"
+                                >
+                                  <CheckCircle className="w-4 h-4" />
+                                </Button>
+                              )}
+                              
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleDeleteAppointment(appointment.id)}
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                title="Deletar"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
                           </div>
                         </div>
-                      </div>
-
-                      <div className="flex items-center space-x-2">
-                        <Badge className={getStatusColor(appointment.status)}>
-                          {getStatusIcon(appointment.status)}
-                          <span className="ml-1">{getStatusText(appointment.status)}</span>
-                        </Badge>
-
-                        <div className="flex space-x-1">
-                          {appointment.status === 'pending' && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleStatusChange(appointment.id, 'confirmed')}
-                              className="text-green-600 hover:text-green-700"
-                            >
-                              <CheckCircle className="w-4 h-4" />
-                            </Button>
-                          )}
-                          
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleDeleteAppointment(appointment.id)}
-                            className="text-red-600 hover:text-red-700"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
+                      </CardContent>
+                    </Card>
                   ))}
                 </div>
               )}
