@@ -19,7 +19,7 @@ import {
   BarChart3,
   Settings
 } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { unifiedBookingService } from '@/services/unifiedBookingService';
 
 interface DashboardStats {
   todayAppointments: number;
@@ -50,42 +50,17 @@ const DashboardClean = () => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const today = new Date().toISOString().split('T')[0];
       
-      // Buscar agendamentos de hoje
-      const { data: todayData } = await supabase
-        .from('appointments')
-        .select('*')
-        .eq('date', today)
-        .order('time', { ascending: true });
-
-      // Buscar confirmações pendentes
-      const { data: pendingData } = await supabase
-        .from('appointments')
-        .select('*')
-        .eq('status', 'pending')
-        .gte('date', today)
-        .order('date', { ascending: true })
-        .limit(5);
-
-      // Buscar próximos agendamentos
-      const { data: upcomingData } = await supabase
-        .from('appointments')
-        .select('*')
-        .gte('date', today)
-        .in('status', ['confirmed', 'pending'])
-        .order('date', { ascending: true })
-        .order('time', { ascending: true })
-        .limit(5);
-
+      const stats = await unifiedBookingService.getDashboardStats();
+      
       setStats({
-        todayAppointments: todayData?.length || 0,
-        pendingConfirmations: pendingData?.length || 0,
-        totalClients: 0, // TODO: Implementar contagem de clientes únicos
+        todayAppointments: stats.todayAppointments,
+        pendingConfirmations: 0, // Não usado mais com sistema simplificado
+        totalClients: stats.totalClients,
         monthlyRevenue: 0, // TODO: Implementar cálculo de receita
         averageRating: 4.8, // TODO: Implementar sistema de avaliações
-        upcomingAppointments: upcomingData || [],
-        recentActivity: pendingData || []
+        upcomingAppointments: stats.upcomingAppointments,
+        recentActivity: stats.recentActivity
       });
     } catch (error) {
       console.error('Erro ao buscar dados do dashboard:', error);

@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase.js';
 
-// Serviço unificado para conectar admin e usuário
+// Serviço unificado para TODO o sistema - Admin, Usuário, BD
 export const unifiedBookingService = {
   // Buscar barbeiros ativos (para admin e usuário)
   async getActiveBarbers() {
@@ -33,6 +33,88 @@ export const unifiedBookingService = {
     } catch (error) {
       console.error('Erro ao buscar serviços:', error);
       return [];
+    }
+  },
+
+  // Buscar clientes únicos (para admin)
+  async getClients() {
+    try {
+      const { data, error } = await supabase
+        .from('appointments')
+        .select('client_name, client_phone, date, status')
+        .order('date', { ascending: false });
+
+      if (error) throw error;
+
+      // Processar dados para criar lista de clientes únicos
+      const clientMap = new Map();
+      
+      data?.forEach(apt => {
+        const key = `${apt.client_name}-${apt.client_phone}`;
+        if (!clientMap.has(key)) {
+          clientMap.set(key, {
+            id: key,
+            name: apt.client_name,
+            phone: apt.client_phone,
+            totalAppointments: 0,
+            status: 'active',
+            lastAppointment: apt.date
+          });
+        }
+        
+        const client = clientMap.get(key);
+        client.totalAppointments++;
+        if (apt.date > (client.lastAppointment || '')) {
+          client.lastAppointment = apt.date;
+        }
+      });
+
+      return Array.from(clientMap.values());
+    } catch (error) {
+      console.error('Erro ao buscar clientes:', error);
+      return [];
+    }
+  },
+
+  // Buscar estatísticas do dashboard
+  async getDashboardStats() {
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      
+      // Buscar agendamentos de hoje
+      const { data: todayData } = await supabase
+        .from('appointments')
+        .select('*')
+        .eq('date', today)
+        .order('time', { ascending: true });
+
+      // Buscar próximos agendamentos
+      const { data: upcomingData } = await supabase
+        .from('appointments')
+        .select('*')
+        .gte('date', today)
+        .eq('status', 'agendado')
+        .order('date', { ascending: true })
+        .order('time', { ascending: true })
+        .limit(5);
+
+      // Buscar clientes únicos
+      const clients = await this.getClients();
+
+      return {
+        todayAppointments: todayData?.length || 0,
+        totalClients: clients.length,
+        upcomingAppointments: upcomingData || [],
+        recentActivity: todayData || []
+      };
+    } catch (error) {
+      console.error('Erro ao buscar estatísticas:', error);
+      return {
+        todayAppointments: 0,
+        totalClients: 0,
+        upcomingAppointments: [],
+        recentActivity: []
+      };
     }
   },
 

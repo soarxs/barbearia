@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Phone, Mail, Calendar, Search, Plus, Edit, Trash2, MessageSquare } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { unifiedBookingService } from '@/services/unifiedBookingService';
 
 interface Client {
   id: string;
@@ -43,38 +43,8 @@ const ClientsModern = () => {
     try {
       setLoading(true);
       
-      // Buscar clientes únicos dos agendamentos
-      const { data: appointments, error } = await supabase
-        .from('appointments')
-        .select('client_name, client_phone, date, status')
-        .order('date', { ascending: false });
-
-      if (error) throw error;
-
-      // Processar dados para criar lista de clientes únicos
-      const clientMap = new Map<string, Client>();
-      
-      appointments?.forEach(apt => {
-        const key = `${apt.client_name}-${apt.client_phone}`;
-        if (!clientMap.has(key)) {
-          clientMap.set(key, {
-            id: key,
-            name: apt.client_name,
-            phone: apt.client_phone,
-            totalAppointments: 0,
-            status: 'active',
-            lastAppointment: apt.date
-          });
-        }
-        
-        const client = clientMap.get(key)!;
-        client.totalAppointments++;
-        if (apt.date > (client.lastAppointment || '')) {
-          client.lastAppointment = apt.date;
-        }
-      });
-
-      setClients(Array.from(clientMap.values()));
+      const clientsData = await unifiedBookingService.getClients();
+      setClients(clientsData);
     } catch (error) {
       console.error('Erro ao buscar clientes:', error);
     } finally {

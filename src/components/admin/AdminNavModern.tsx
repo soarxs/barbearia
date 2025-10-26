@@ -20,7 +20,7 @@ import {
   Scissors,
   FileText
 } from 'lucide-react';
-import { supabase } from '@/lib/supabase.js';
+import { unifiedBookingService } from '@/services/unifiedBookingService';
 // import { useAuth } from '@/hooks/useAuth.jsx';
 // import { useNavigate } from 'react-router-dom';
 
@@ -42,32 +42,27 @@ const AdminNavModern = ({ currentPage, onPageChange }: AdminNavModernProps) => {
   // Buscar notificações reais
   const fetchNotifications = useCallback(async () => {
     try {
-      // Buscar agendamentos pendentes para hoje
       const today = new Date().toISOString().split('T')[0];
-      const { data: agendaData } = await supabase
-        .from('appointments')
-        .select('id')
-        .eq('date', today)
-        .eq('status', 'pending');
+      
+      // Buscar agendamentos de hoje
+      const todayAppointments = await unifiedBookingService.getAppointments({
+        date: today
+      });
 
-      // Buscar confirmações pendentes (apenas próximos 7 dias)
+      // Buscar próximos agendamentos (próximos 7 dias)
       const nextWeek = new Date();
       nextWeek.setDate(nextWeek.getDate() + 7);
-      const { data: confirmacoesData } = await supabase
-        .from('appointments')
-        .select('id')
-        .in('status', ['pending', 'confirmed'])
-        .gte('date', today)
-        .lte('date', nextWeek.toISOString().split('T')[0])
-        .order('date', { ascending: true });
+      const upcomingAppointments = await unifiedBookingService.getAppointments({
+        status: 'agendado',
+        date: today
+      });
 
       setNotifications({
-        agenda: agendaData?.length || 0,
-        confirmacoes: confirmacoesData?.length || 0
+        agenda: todayAppointments.length,
+        confirmacoes: upcomingAppointments.length
       });
     } catch (error) {
       console.error('Erro ao buscar notificações:', error);
-      // Em caso de erro, manter notificações zeradas
       setNotifications({ agenda: 0, confirmacoes: 0 });
     }
   }, []);
