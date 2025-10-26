@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { serviceService, barberService } from '@/services/supabaseService';
 import { bookingService } from '@/services/bookingService';
+import { unifiedBookingService } from '@/services/unifiedBookingService';
 import { toast } from 'sonner';
 
 // Componente para lista de horários
@@ -220,10 +221,11 @@ const SmartBooking = ({ onClose, selectedService }: SmartBookingProps) => {
         barber: formData.barber,
         date: formData.date,
         time: formData.time,
-        notes: formData.notes
+        notes: formData.notes,
+        status: 'pending'
       };
 
-      await bookingService.createAppointment(appointmentData);
+      await unifiedBookingService.createAppointment(appointmentData);
       
       // Mostrar sucesso
       toast.success('Agendamento realizado com sucesso!');
@@ -231,7 +233,7 @@ const SmartBooking = ({ onClose, selectedService }: SmartBookingProps) => {
       
     } catch (error) {
       console.error('Erro ao criar agendamento:', error);
-      toast.error('Erro ao criar agendamento: ' + error);
+      toast.error('Erro ao criar agendamento: ' + error.message);
     }
   };
 

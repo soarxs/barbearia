@@ -28,6 +28,7 @@ import {
   Zap
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { unifiedBookingService } from '@/services/unifiedBookingService';
 
 interface Appointment {
   id: string;
@@ -97,14 +98,8 @@ const AgendaInteligente = () => {
 
   const fetchBarbers = async () => {
     try {
-      const { data, error } = await supabase
-        .from('barbers')
-        .select('*')
-        .eq('active', true)
-        .order('name');
-
-      if (error) throw error;
-      setBarbers(data || []);
+      const barbersData = await unifiedBookingService.getActiveBarbers();
+      setBarbers(barbersData.map(b => b.name));
     } catch (error) {
       console.error('Erro ao buscar barbeiros:', error);
     }
@@ -112,13 +107,8 @@ const AgendaInteligente = () => {
 
   const fetchServices = async () => {
     try {
-      const { data, error } = await supabase
-        .from('services')
-        .select('name')
-        .eq('active', true);
-
-      if (error) throw error;
-      setServices(data?.map(s => s.name) || []);
+      const servicesData = await unifiedBookingService.getActiveServices();
+      setServices(servicesData.map(s => s.name));
     } catch (error) {
       console.error('Erro ao buscar serviços:', error);
     }
@@ -128,16 +118,12 @@ const AgendaInteligente = () => {
     try {
       const selectedDateStr = selectedDate.toISOString().split('T')[0];
       
-      const { data, error } = await supabase
-        .from('appointments')
-        .select('*')
-        .eq('date', selectedDateStr)
-        .eq('barber', selectedBarber)
-        .order('time', { ascending: true });
+      const appointmentsData = await unifiedBookingService.getAppointments({
+        date: selectedDateStr,
+        barber: selectedBarber
+      });
 
-      if (error) throw error;
-
-      const formattedAppointments = data?.map(apt => ({
+      const formattedAppointments = appointmentsData.map(apt => ({
         id: apt.id,
         clientName: apt.client_name,
         clientPhone: apt.client_phone,
@@ -147,7 +133,7 @@ const AgendaInteligente = () => {
         time: apt.time,
         status: apt.status,
         notes: apt.notes
-      })) || [];
+      }));
 
       setAppointments(formattedAppointments);
     } catch (error) {
@@ -168,13 +154,6 @@ const AgendaInteligente = () => {
 
   const handleAddAppointment = async () => {
     try {
-      // Verificar se o horário está disponível
-      const existingAppointment = appointments.find(apt => apt.time === newAppointment.time);
-      if (existingAppointment) {
-        alert('Este horário já está ocupado!');
-        return;
-      }
-
       const appointmentData = {
         client_name: newAppointment.clientName,
         client_phone: newAppointment.clientPhone,
@@ -186,11 +165,7 @@ const AgendaInteligente = () => {
         notes: newAppointment.notes
       };
 
-      const { error } = await supabase
-        .from('appointments')
-        .insert([appointmentData]);
-
-      if (error) throw error;
+      await unifiedBookingService.createAppointment(appointmentData);
 
       setNewAppointment({
         clientName: '',
@@ -204,17 +179,13 @@ const AgendaInteligente = () => {
       fetchAppointments();
     } catch (error) {
       console.error('Erro ao criar agendamento:', error);
+      alert('Erro ao criar agendamento: ' + error.message);
     }
   };
 
   const handleStatusChange = async (appointmentId: string, newStatus: string) => {
     try {
-      const { error } = await supabase
-        .from('appointments')
-        .update({ status: newStatus })
-        .eq('id', appointmentId);
-
-      if (error) throw error;
+      await unifiedBookingService.updateAppointmentStatus(appointmentId, newStatus);
       fetchAppointments();
     } catch (error) {
       console.error('Erro ao atualizar status:', error);
@@ -223,12 +194,7 @@ const AgendaInteligente = () => {
 
   const handleDeleteAppointment = async (appointmentId: string) => {
     try {
-      const { error } = await supabase
-        .from('appointments')
-        .delete()
-        .eq('id', appointmentId);
-
-      if (error) throw error;
+      await unifiedBookingService.deleteAppointment(appointmentId);
       fetchAppointments();
     } catch (error) {
       console.error('Erro ao deletar agendamento:', error);
