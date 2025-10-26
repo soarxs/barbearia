@@ -232,7 +232,7 @@ const AgendaInteligente = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Agenda Inteligente</h1>
+          <h1 className="text-2xl font-bold">Agenda Simplificada</h1>
           <p className="text-gray-600">Gerencie as agendas de cada barbeiro</p>
         </div>
         <Button onClick={() => setIsAddDialogOpen(true)} className="bg-blue-600 hover:bg-blue-700">
