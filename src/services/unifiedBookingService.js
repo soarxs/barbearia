@@ -191,6 +191,12 @@ export const unifiedBookingService = {
         '17:00', '17:30', '18:00', '18:30', '19:00', '19:30'
       ];
 
+      // Verificar se é hoje para aplicar margem de 5 minutos
+      const today = new Date().toISOString().split('T')[0];
+      const isToday = date === today;
+      const now = new Date();
+      const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+
       // Buscar agendamentos existentes
       const { data: existingAppointments } = await supabase
         .from('appointments')
@@ -202,7 +208,20 @@ export const unifiedBookingService = {
       const takenTimes = new Set(existingAppointments?.map(apt => apt.time) || []);
       
       // Filtrar horários disponíveis
-      const availableSlots = workingHours.filter(time => !takenTimes.has(time));
+      let availableSlots = workingHours.filter(time => !takenTimes.has(time));
+      
+      // Se for hoje, filtrar horários passados (com margem de 5 minutos)
+      if (isToday) {
+        availableSlots = availableSlots.filter(time => {
+          const [hours, minutes] = time.split(':').map(Number);
+          const slotTime = hours * 60 + minutes;
+          const [currentHours, currentMinutes] = currentTime.split(':').map(Number);
+          const currentSlotTime = currentHours * 60 + currentMinutes;
+          
+          // Margem de 5 minutos
+          return slotTime > (currentSlotTime + 5);
+        });
+      }
       
       return availableSlots;
     } catch (error) {
