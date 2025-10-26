@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { addAppointment, formatLocalDateKey, normalizePhoneToE164BR } from '@/lib/dataStore.js';
+import { unifiedBookingService } from '@/services/unifiedBookingService';
 import { useTenant } from '@/hooks/useTenant.js';
 import { useDataSync } from '@/hooks/useDataSync.js';
 import { useFormValidation, validationRules } from '@/hooks/useFormValidation';
@@ -65,36 +65,28 @@ export const useBooking = (preSelectedServiceId, enabled = true) => {
       return;
     }
 
-    if (!tenant?.barbershop?.id) {
-      toast.error('Erro: Barbearia não encontrada');
-      return;
-    }
-
     try {
-      const booking = {
-        date: formatLocalDateKey(selectedDate),
-        time: selectedTime,
-        service_id: selectedService,
-        barber_id: selectedBarber,
+      const appointmentData = {
         client_name: name,
-        client_phone: normalizePhoneToE164BR(phone),
-        status: 'pendente'
+        client_phone: phone,
+        service: services.find(s => s.id === selectedService)?.name || 'Serviço',
+        barber: barbers.find(b => b.id === selectedBarber)?.name || 'Barbeiro',
+        date: selectedDate.toISOString().split('T')[0],
+        time: selectedTime,
+        status: 'agendado'
       };
 
-      const appointment = await addAppointment(booking, tenant.barbershop.id);
+      const appointment = await unifiedBookingService.createAppointment(appointmentData);
       
-      const service = services.find(s => s.id === selectedService);
-      const barber = barbers.find(b => b.id === selectedBarber);
-      
-      const appointmentData = {
+      const appointmentDataForPage = {
         id: appointment.id,
         client_name: name,
         client_phone: phone,
-        service_name: service?.name || 'Serviço',
-        barber_name: barber?.name || 'Barbeiro',
-        date: formatLocalDateKey(selectedDate),
-        time: selectedTime,
-        status: 'pendente'
+        service_name: appointmentData.service,
+        barber_name: appointmentData.barber,
+        date: appointmentData.date,
+        time: appointmentData.time,
+        status: 'agendado'
       };
       
       toast.success('✅ Agendamento confirmado!', {
@@ -103,7 +95,7 @@ export const useBooking = (preSelectedServiceId, enabled = true) => {
 
       // Reset e redirecionar
       resetForm();
-      navigate('/obrigado', { state: { appointment: appointmentData } });
+      navigate('/obrigado', { state: { appointment: appointmentDataForPage } });
       
     } catch (error) {
       console.error('Erro ao criar agendamento:', error);

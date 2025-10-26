@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, Clock, User, Phone, MessageSquare } from 'lucide-react';
-import { serviceService, barberService } from '@/services/supabaseService';
+import { unifiedBookingService } from '@/services/unifiedBookingService';
 
 interface GoogleCalendarBookingProps {
   onClose: () => void;
@@ -31,8 +31,8 @@ const GoogleCalendarBooking = ({ onClose, selectedService }: GoogleCalendarBooki
       try {
         setLoading(true);
         const [servicesData, barbersData] = await Promise.all([
-          serviceService.getAll(),
-          barberService.getAll()
+          unifiedBookingService.getActiveServices(),
+          unifiedBookingService.getActiveBarbers()
         ]);
         
         setServices(servicesData);

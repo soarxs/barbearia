@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
-import { generateTimeSlotsFor, generateTimeSlotsForBarber, formatLocalDateKey } from '@/lib/dataStore.js';
-import { supabase } from '@/lib/supabase';
+import { unifiedBookingService } from '@/services/unifiedBookingService';
 import { useBooking } from '@/hooks/useBooking.js';
 import { useTenant } from '@/hooks/useTenant.js';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
