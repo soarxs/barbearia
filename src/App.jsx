@@ -8,7 +8,7 @@ import Inicio from './pages/Inicio.jsx';
 import NaoEncontrado from './pages/NaoEncontrado.jsx';
 import PrivateRoute from './pages/PrivateRouteSimple.jsx';
 import Login from './componentes/AuthAdmin/Login.jsx';
-import AdminModern from './components/admin/AdminModern.tsx';
+import AdminClean from './components/admin/AdminClean.tsx';
 import AguardandoAprovacao from './pages/AguardandoAprovacao.jsx';
 import AcessoNegado from './pages/AcessoNegado.jsx';
 import ThankYouPage from './components/ThankYouPage.tsx';
@@ -33,7 +33,7 @@ const App = () => (
                   path="/admin"
                   element={
                     <PrivateRoute>
-                      <AdminModern />
+                      <AdminClean />
                     </PrivateRoute>
                   }
                 />
