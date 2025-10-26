@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
-import { getBarbers, getServices, getAllBarberSchedules, getAppointments, addAppointment, updateAppointment, removeAppointment, generateTimeSlotsForBarber, ensureBarberSchedules } from '@/lib/dataStore';
+import { unifiedBookingService } from '@/services/unifiedBookingService';
 
 export function useDataSync(barbershopId) {
   const [barbers, setBarbers] = useState([]);
@@ -27,9 +27,9 @@ export function useDataSync(barbershopId) {
       
       // Carregar dados em paralelo
       const [barbersData, servicesData, appointmentsData] = await Promise.all([
-        getBarbers(barbershopId),
-        getServices(barbershopId),
-        getAppointments(barbershopId)
+        unifiedBookingService.getActiveBarbers(),
+        unifiedBookingService.getActiveServices(),
+        unifiedBookingService.getAppointments()
       ]);
       
       // Garantir que todos os barbeiros tenham horários

@@ -13,8 +13,6 @@ import {
   CheckCircle,
   XCircle
 } from 'lucide-react';
-import { serviceService, barberService } from '@/services/supabaseService';
-import { bookingService } from '@/services/bookingService';
 import { unifiedBookingService } from '@/services/unifiedBookingService';
 import { toast } from 'sonner';
 
