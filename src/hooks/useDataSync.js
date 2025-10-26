@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { getBarbers, getServices, getAllBarberSchedules, getAppointments, addAppointment, updateAppointment, removeAppointment, generateTimeSlotsForBarber, ensureBarberSchedules } from '@/lib/dataStore';
 
@@ -12,7 +12,7 @@ export function useDataSync(barbershopId) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     if (!barbershopId) {
       setBarbers([]);
       setServices([]);
@@ -62,15 +62,15 @@ export function useDataSync(barbershopId) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [barbershopId]);
 
-  const refreshData = () => {
+  const refreshData = useCallback(() => {
     loadData();
-  };
+  }, [loadData]);
 
   useEffect(() => {
     loadData();
-  }, [barbershopId]);
+  }, [loadData]);
 
   // Filtrar agendamentos do dia
   const filteredDayList = useMemo(() => {

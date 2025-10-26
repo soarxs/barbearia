@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { toast } from 'sonner';
 import { 
   Plus, 
   Edit, 
@@ -59,7 +60,7 @@ const ServicesManagementFixed = () => {
       setFormData({ name: '', description: '', price: 0, duration: 30, active: true });
     } catch (error) {
       console.error('Erro ao salvar serviço:', error);
-      alert('Erro ao salvar serviço: ' + error);
+      toast.error('Erro ao salvar serviço: ' + error);
     }
   };
 
@@ -82,7 +83,7 @@ const ServicesManagementFixed = () => {
         await fetchServices();
       } catch (error) {
         console.error('Erro ao deletar serviço:', error);
-        alert('Erro ao deletar serviço: ' + error);
+        toast.error('Erro ao deletar serviço: ' + error);
       }
     }
   };
@@ -93,7 +94,7 @@ const ServicesManagementFixed = () => {
       await fetchServices();
     } catch (error) {
       console.error('Erro ao atualizar serviço:', error);
-      alert('Erro ao atualizar serviço: ' + error);
+      toast.error('Erro ao atualizar serviço: ' + error);
     }
   };
 

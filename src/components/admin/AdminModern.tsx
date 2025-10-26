@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import AdminNavModern from './AdminNavModern';
 import DashboardSimple from './DashboardSimple';
-import AgendaModern from './AgendaModern';
-import ConfirmationsModern from './ConfirmationsModern';
+import AgendaConfirmacoes from './AgendaConfirmacoes';
 import ServicesManagementFixed from './ServicesManagementFixed';
 import BarbersManagementFixed from './BarbersManagementFixed';
 import ClientsModern from './ClientsModern';
-import ReportsModern from './ReportsModern';
-import SettingsModern from './SettingsModern';
+import ReportsAdvanced from './ReportsAdvanced';
+import WhatsAppTest from './WhatsAppTest';
 
 const AdminModern = () => {
   const [currentPage, setCurrentPage] = useState('dashboard');
@@ -17,9 +16,9 @@ const AdminModern = () => {
       case 'dashboard':
         return <DashboardSimple />;
       case 'agenda':
-        return <AgendaModern />;
+        return <AgendaConfirmacoes />;
       case 'confirmacoes':
-        return <ConfirmationsModern />;
+        return <AgendaConfirmacoes />;
       case 'servicos':
         return <ServicesManagementFixed />;
       case 'barbeiros':
@@ -27,11 +26,11 @@ const AdminModern = () => {
       case 'clientes':
         return <ClientsModern />;
       case 'relatorios':
-        return <ReportsModern />;
-      case 'configuracoes':
-        return <SettingsModern />;
+        return <ReportsAdvanced />;
+      case 'whatsapp-test':
+        return <WhatsAppTest />;
       default:
-        return <DashboardModern />;
+        return <DashboardSimple />;
     }
   };
 

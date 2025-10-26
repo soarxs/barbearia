@@ -5,17 +5,7 @@ import { useTenant } from '@/hooks/useTenant.js';
 import { useDataSync } from '@/hooks/useDataSync.js';
 import { useFormValidation, validationRules } from '@/hooks/useFormValidation';
 import { toast } from 'sonner';
-const MOCK_BARBERS = [
-  { id: '1', name: 'João Silva', email: 'joao@barbertime.com', phone: '(11) 99999-9999' },
-  { id: '2', name: 'Pedro Santos', email: 'pedro@barbertime.com', phone: '(11) 99999-9998' },
-  { id: '3', name: 'Carlos Lima', email: 'carlos@barbertime.com', phone: '(11) 99999-9997' }
-];
-
-const MOCK_SERVICES = [
-  { id: '1', title: 'Corte Masculino', price: 25, description: 'Corte moderno e estiloso' },
-  { id: '2', title: 'Barba', price: 15, description: 'Aparar e modelar a barba' },
-  { id: '3', title: 'Corte + Barba', price: 35, description: 'Pacote completo' }
-];
+// Dados mock removidos - agora usando dados reais do Supabase
 
 const DEFAULT_TIMES = ['08:00', '09:00', '10:00', '11:00', '14:00', '15:00', '16:00', '17:00'];
 
@@ -35,9 +25,9 @@ export const useBooking = (preSelectedServiceId, enabled = true) => {
   const [times, setTimes] = useState(DEFAULT_TIMES);
   const [takenTimes, setTakenTimes] = useState(new Set());
 
-  // Dados com fallback
-  const barbers = syncBarbers.length > 0 ? syncBarbers : MOCK_BARBERS;
-  const services = syncServices.length > 0 ? syncServices : MOCK_SERVICES;
+  // Dados do Supabase
+  const barbers = syncBarbers;
+  const services = syncServices;
 
   // Validação de formulário
   const { errors, touched, handleBlur, handleChange, setFieldTouched, isFieldValid, isFieldInvalid, isFormValid } = useFormValidation({

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useIsMobile } from '@/hooks/use-mobile';
+import MobileDashboard from './MobileDashboard';
 import { 
   Users, 
   Calendar, 
@@ -19,6 +21,7 @@ import {
 import { supabase } from '@/lib/supabase';
 
 const DashboardModern = () => {
+  const isMobile = useIsMobile();
   const [selectedPeriod, setSelectedPeriod] = useState('today');
   const [stats, setStats] = useState({
     totalClients: 0,
@@ -128,6 +131,30 @@ const DashboardModern = () => {
       default: return <AlertCircle className="w-4 h-4" />;
     }
   };
+
+  // Renderizar versão mobile se for mobile
+  if (isMobile) {
+    return (
+      <MobileDashboard
+        stats={{
+          totalAppointments: stats.totalAppointments,
+          confirmedAppointments: 0, // Calcular baseado nos dados
+          completedAppointments: 0, // Calcular baseado nos dados
+          cancelledAppointments: 0, // Calcular baseado nos dados
+          totalRevenue: stats.monthlyRevenue,
+          averageTicket: stats.monthlyRevenue / Math.max(stats.totalAppointments, 1),
+          topBarber: 'João Silva', // Buscar do banco
+          mostPopularService: 'Corte', // Buscar do banco
+          conversionRate: 85, // Calcular
+          noShowRate: 5 // Calcular
+        }}
+        recentAppointments={recentAppointments}
+        onViewAppointments={() => {/* Navegar para agenda */}}
+        onViewReports={() => {/* Navegar para relatórios */}}
+        onViewSettings={() => {/* Navegar para configurações */}}
+      />
+    );
+  }
 
   return (
     <div className="p-6 space-y-6">

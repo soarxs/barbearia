@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { toast } from 'sonner';
 import { 
   Plus, 
   Edit, 
@@ -70,7 +71,7 @@ const BarbersManagementFixed = () => {
       setFormData({ name: '', phone: '', email: '', specialties: [], active: true });
     } catch (error) {
       console.error('Erro ao salvar barbeiro:', error);
-      alert('Erro ao salvar barbeiro: ' + error);
+      toast.error('Erro ao salvar barbeiro: ' + error);
     }
   };
 
@@ -93,7 +94,7 @@ const BarbersManagementFixed = () => {
         await fetchBarbers();
       } catch (error) {
         console.error('Erro ao deletar barbeiro:', error);
-        alert('Erro ao deletar barbeiro: ' + error);
+        toast.error('Erro ao deletar barbeiro: ' + error);
       }
     }
   };
@@ -104,7 +105,7 @@ const BarbersManagementFixed = () => {
       await fetchBarbers();
     } catch (error) {
       console.error('Erro ao atualizar barbeiro:', error);
-      alert('Erro ao atualizar barbeiro: ' + error);
+      toast.error('Erro ao atualizar barbeiro: ' + error);
     }
   };
 

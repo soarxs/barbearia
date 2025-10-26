@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { serviceService, barberService } from '@/services/supabaseService';
 import { bookingService } from '@/services/bookingService';
+import { toast } from 'sonner';
 
 // Componente para lista de horários
 const TimeSlotsList = ({ date, service, barber, selectedTime, onTimeSelect }: {
@@ -225,12 +226,12 @@ const SmartBooking = ({ onClose, selectedService }: SmartBookingProps) => {
       await bookingService.createAppointment(appointmentData);
       
       // Mostrar sucesso
-      alert('Agendamento realizado com sucesso!');
+      toast.success('Agendamento realizado com sucesso!');
       onClose();
       
     } catch (error) {
       console.error('Erro ao criar agendamento:', error);
-      alert('Erro ao criar agendamento: ' + error);
+      toast.error('Erro ao criar agendamento: ' + error);
     }
   };
 

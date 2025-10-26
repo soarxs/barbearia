@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { MobileNavigation } from '@/components/mobile/MobileOptimizations';
 import { 
   LayoutDashboard,
   Calendar,
@@ -18,6 +20,7 @@ import {
   Scissors,
   FileText
 } from 'lucide-react';
+import { supabase } from '@/lib/supabase.js';
 // import { useAuth } from '@/hooks/useAuth.jsx';
 // import { useNavigate } from 'react-router-dom';
 
@@ -27,9 +30,55 @@ interface AdminNavModernProps {
 }
 
 const AdminNavModern = ({ currentPage, onPageChange }: AdminNavModernProps) => {
+  const isMobile = useIsMobile();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [notifications, setNotifications] = useState({
+    agenda: 0,
+    confirmacoes: 0
+  });
   // const { signOut, user } = useAuth();
   // const navigate = useNavigate();
+
+  // Buscar notificações reais
+  const fetchNotifications = useCallback(async () => {
+    try {
+      // Buscar agendamentos pendentes para hoje
+      const today = new Date().toISOString().split('T')[0];
+      const { data: agendaData } = await supabase
+        .from('appointments')
+        .select('id')
+        .eq('date', today)
+        .eq('status', 'pending');
+
+      // Buscar confirmações pendentes (apenas próximos 7 dias)
+      const nextWeek = new Date();
+      nextWeek.setDate(nextWeek.getDate() + 7);
+      const { data: confirmacoesData } = await supabase
+        .from('appointments')
+        .select('id')
+        .in('status', ['pending', 'confirmed'])
+        .gte('date', today)
+        .lte('date', nextWeek.toISOString().split('T')[0])
+        .order('date', { ascending: true });
+
+      setNotifications({
+        agenda: agendaData?.length || 0,
+        confirmacoes: confirmacoesData?.length || 0
+      });
+    } catch (error) {
+      console.error('Erro ao buscar notificações:', error);
+      // Em caso de erro, manter notificações zeradas
+      setNotifications({ agenda: 0, confirmacoes: 0 });
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchNotifications();
+    
+    // Atualizar notificações a cada 60 segundos (menos frequente para melhor performance)
+    const interval = setInterval(fetchNotifications, 60000);
+    return () => clearInterval(interval);
+  }, [fetchNotifications]);
 
   const navigationItems = [
     {
@@ -40,15 +89,9 @@ const AdminNavModern = ({ currentPage, onPageChange }: AdminNavModernProps) => {
     },
     {
       id: 'agenda',
-      name: 'Agenda',
+      name: 'Agenda & Confirmações',
       icon: Calendar,
-      badge: '3'
-    },
-    {
-      id: 'confirmacoes',
-      name: 'Confirmações',
-      icon: MessageSquare,
-      badge: '5'
+      badge: (notifications.agenda + notifications.confirmacoes) > 0 ? (notifications.agenda + notifications.confirmacoes).toString() : null
     },
     {
       id: 'servicos',
@@ -75,9 +118,9 @@ const AdminNavModern = ({ currentPage, onPageChange }: AdminNavModernProps) => {
       badge: null
     },
     {
-      id: 'configuracoes',
-      name: 'Configurações',
-      icon: Settings,
+      id: 'whatsapp-test',
+      name: 'WhatsApp Test',
+      icon: MessageSquare,
       badge: null
     }
   ];
@@ -259,6 +302,15 @@ const AdminNavModern = ({ currentPage, onPageChange }: AdminNavModernProps) => {
           </div>
         )}
       </div>
+
+      {/* Navegação Mobile */}
+      {isMobile && (
+        <MobileNavigation
+          items={navigationItems}
+          currentPage={currentPage}
+          onPageChange={onPageChange}
+        />
+      )}
     </nav>
   );
 };

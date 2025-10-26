@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase.js';
+import { whatsappAutomationService } from './whatsapp/WhatsAppAutomationService';
 
 // Configurações do negócio
 const BUSINESS_CONFIG = {
@@ -65,6 +66,7 @@ export const bookingService = {
       return true;
     } catch (error) {
       console.error('Erro ao verificar disponibilidade:', error);
+      // Em caso de erro, assumir que o horário não está disponível por segurança
       return false;
     }
   },
@@ -187,6 +189,27 @@ export const bookingService = {
         .select();
       
       if (error) throw error;
+      
+      // Enviar confirmação automática via WhatsApp
+      try {
+        const whatsappData = {
+          clientName: appointmentData.client_name,
+          clientPhone: appointmentData.client_phone,
+          serviceName: appointmentData.service,
+          barberName: appointmentData.barber,
+          date: this.formatDateForDisplay(appointmentData.date),
+          time: appointmentData.time,
+          barbershopName: 'Barbearia Teste', // TODO: Buscar do banco
+          barbershopPhone: '38984375115'
+        };
+        
+        await whatsappAutomationService.sendAppointmentConfirmation(whatsappData);
+        console.log('✅ Confirmação WhatsApp enviada');
+      } catch (whatsappError) {
+        console.error('❌ Erro ao enviar WhatsApp:', whatsappError);
+        // Não falha o agendamento se WhatsApp falhar
+      }
+      
       return data[0];
     } catch (error) {
       console.error('Erro ao criar agendamento:', error);
@@ -231,6 +254,12 @@ export const bookingService = {
     console.log('Data de hoje (Montes Claros):', todayString);
     console.log('É válida?', date >= todayString);
     return date >= todayString;
+  },
+
+  // Formatar data para exibição (DD/MM/YYYY)
+  formatDateForDisplay(dateString: string): string {
+    const [year, month, day] = dateString.split('-');
+    return `${day}/${month}/${year}`;
   },
 
   // Verificar se o horário está no futuro (para hoje)

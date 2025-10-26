@@ -19,7 +19,22 @@ const formatPhone = (value: string) => {
   }
   return numbers.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
 };
-import { STEP_TITLES, STEP_DESCRIPTIONS } from '@/lib/constants.js';
+// Constantes movidas para o arquivo
+const STEP_TITLES = {
+  1: 'Escolha o Serviço',
+  2: 'Escolha o Barbeiro',
+  3: 'Escolha a Data',
+  4: 'Escolha o Horário',
+  5: 'Seus Dados'
+};
+
+const STEP_DESCRIPTIONS = {
+  1: 'Selecione o serviço desejado',
+  2: 'Escolha seu barbeiro preferido',
+  3: 'Selecione a data do agendamento',
+  4: 'Escolha o melhor horário',
+  5: 'Preencha seus dados para finalizar'
+};
 
 interface BookingModalProps {
   open: boolean;
