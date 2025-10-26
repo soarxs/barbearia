@@ -33,7 +33,7 @@ const TimeSlotsList = ({ date, service, barber, selectedTime, onTimeSelect }: {
     const loadSlots = async () => {
       try {
         setLoading(true);
-        const availableSlots = await bookingService.getAvailableSlots(date, service, barber);
+        const availableSlots = await unifiedBookingService.getAvailableTimeSlots(date, barber);
         setSlots(availableSlots.map(time => ({
           time,
           label: time,
